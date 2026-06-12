@@ -24,4 +24,10 @@ O projeto aborda a dificuldade na organização e no controle de acervos bibliot
 - Israel Efraim Silva e Sousa  
 - João Pedro de Souza Alli
 - Luís Dantas Marinho
-- Pedro Henrique Silva Lopes  
+- Pedro Henrique Silva Lopes
+
+---
+
+## Orientador
+
+- Ricardo Palhares
