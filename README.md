@@ -7,6 +7,7 @@
 - 📲 [Cronograma de Desenvolvimento interativo](https://calendar.google.com/calendar/u/0/newembed?src=b8ggrcgfon2q72sm1v875le5o5r9350t@import.calendar.google.com&ctz=America/Sao_Paulo)
 - 📝 [Diário de Bordo](docs/diario_de_bordo/)
 - 📃 [Relatório de Ambiente de Desenvolvimento](docs/ambiente_de_desenvolvimento/)
+- 📄 [Artigos](artigos/)
 - 🎥 [Vídeo do Projeto](docs/video/)
 - 📱 [Protótipo interativo do Figma](https://www.figma.com/make/YjmQaziojlR0tlhQZvXwLK/BiblioGest%C3%A3o-app-development?t=0g30S11a2cDECnrB-20&fullscreen=1)
 - 🗂️ [Arquivos Antigos (Rascunhos)](docs/rascunho/)
