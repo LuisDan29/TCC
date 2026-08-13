@@ -1,7 +1,7 @@
-import Accordion from "./components/Accordion";
+import ListGroup from "./components/ListGroup";
 
 function App() {
-  return <Accordion />;
+  return <ListGroup />;
 }
 
 export default App;
