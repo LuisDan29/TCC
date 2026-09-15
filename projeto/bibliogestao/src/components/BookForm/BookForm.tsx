@@ -85,7 +85,10 @@ function BookForm() {
         />
 
         {/* AUTHOR FIELD */}
-        <AuthorFields />
+        <AuthorFields
+          authorFullName={authorFullName}
+          setAuthorFullName={setAuthorFullName}
+        />
 
         {/* PUBLISHERS FIELD */}
         <PublisherFields 

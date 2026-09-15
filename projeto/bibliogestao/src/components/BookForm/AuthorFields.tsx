@@ -27,18 +27,12 @@ function AuthorFields ({
                 Autoria
             </legend>
 
-            {authorFullName}
-            <div className="input-group mb-3">
-                <label htmlFor="inputGroupSelect01" className="input-group-text">Autor 1</label>
-                    <input className="form-control" list="datalistOptions" id="inputGroupSelect01" placeholder="Digite o nome do autor..."/>
-                    <datalist id="datalistOptions">
-                    <option value="San Francisco"/>
-                    <option value="New York"/>
-                    <option value="Seattle"/>
-                    <option value="Los Angeles"/>
-                    <option value="Chicago"/>
-                    </datalist>                
-            </div>
+            {authorFullName.map((author, index) => (
+                <div className="input-group mb-3" key={index}>
+                    <label htmlFor={`author-${index}`} className="input-group-text">Autor {index + 1}</label>
+                    <input className="form-control" list="datalistOptions" id={`author-${index}`} placeholder="Digite o nome do autor..." value={author} onChange={(event) => handleAuthorChange(index, event.target.value)}/>
+                </div>
+            ))}
             <div className="d-grip gap-2">
                 <button className="btn btn-primary" type="button">+ Adicionar outro autor</button>
             </div>

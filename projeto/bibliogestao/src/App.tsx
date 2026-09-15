@@ -11,8 +11,8 @@ function App() {
     "Mônica's Ganga",
   ];
 
-  return <LoginForm/> 
-  //<BookForm/> //<ListGroup items={movies} heading="Movies" />; 
+  return <BookForm/> 
+  // <LoginForm/> <ListGroup items={movies} heading="Movies" />; 
 }
 
 export default App;
