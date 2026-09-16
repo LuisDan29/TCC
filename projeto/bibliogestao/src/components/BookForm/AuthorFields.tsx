@@ -19,6 +19,12 @@ function AuthorFields ({
         setAuthorFullName(newAuthors);
     }
 
+    function removeAuthor(index: number) {
+        const newAuthors = authorFullName.filter((_, i) => i != index);
+
+        setAuthorFullName(newAuthors);
+    }
+
     return (
         <>
         {/* AUTHOR FIELD */}
@@ -31,11 +37,20 @@ function AuthorFields ({
                 <div className="input-group mb-3" key={index}>
                     <label htmlFor={`author-${index}`} className="input-group-text">Autor {index + 1}</label>
                     <input className="form-control" list="datalistOptions" id={`author-${index}`} placeholder="Digite o nome do autor..." value={author} onChange={(event) => handleAuthorChange(index, event.target.value)}/>
+                    
+                    {index > 0 && (
+                        <button type="button" className="btn btn-outline-danger" onClick={() => removeAuthor(index)}>
+                            X
+                        </button>
+                    )}
                 </div>
             ))}
+
             <div className="d-grip gap-2">
-                <button className="btn btn-primary" type="button">+ Adicionar outro autor</button>
+                <button className="btn btn-primary" type="button" onClick={addAuthor}>+ Adicionar outro autor</button>
             </div>
+
+            <datalist id="datalistOptions"></datalist>
         </fieldset>
         </>
     )

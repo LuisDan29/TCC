@@ -45,6 +45,10 @@ function BookForm() {
         condition: condition
       }
 
+      const newAuthor = {
+        authorFullName: authorFullName,
+      }
+
       const { data, error } = await supabase
         .from("Books")
         .insert(newBook)
