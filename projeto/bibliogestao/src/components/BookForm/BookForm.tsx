@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { supabase } from "../../lib/supabase-client.ts";
+import { supabase } from "../../lib/supabase-client";
 
-import BookFields from "./BookFields.tsx";
-import AuthorFields from "./AuthorFields.tsx";
-import PublisherFields from "./PublisherFields.tsx";
-import CollectionFields from "./CollectionFields.tsx";
+import BookFields from "./BookFields";
+import AuthorFields from "./AuthorFields";
+import PublisherFields from "./PublisherFields";
+import CollectionFields from "./CollectionFields";
 
 function BookForm() {
     // Book
@@ -31,7 +31,7 @@ function BookForm() {
     const [condition, setCondition] = useState(0);
     const [numberBooksInserted, setNumberBooksInserted] = useState(1);
 
-    async function sendForm(event: React.FormEvent) {
+    async function sendForm(event: React.SubmitEvent) {
       event.preventDefault();
       
       const newBook = {
@@ -54,7 +54,7 @@ function BookForm() {
         return;
       }
 
-      console.log("Livro cadastrado!");
+      return data;
     }
 
     return (
