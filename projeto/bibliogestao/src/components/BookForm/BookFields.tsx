@@ -183,7 +183,7 @@ function BookFields({
                 style={{ fontSize: "1.1rem", lineHeight: 1, marginLeft: "6px" }}
                 onClick={() => removeGenre(genre)}
               >
-                x{" "}
+                x
               </button>
             </span>
           ))}
