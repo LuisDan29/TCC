@@ -2,7 +2,7 @@
 import BookForm from "./components/BookForm/BookForm";
 
 function App() {
-  return <BookForm/> 
+  return <BookForm />;
 }
 
 export default App;
