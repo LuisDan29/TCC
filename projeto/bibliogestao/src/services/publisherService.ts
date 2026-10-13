@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase-client";
 
-export async function findOrCreatePublisher(name: string, country: string) {
+export async function getOrCreatePublisher(name: string, country: string) {
   const { data: existingPublisher, error: selectError } = await supabase
     .from("Publishers")
     .select("id")

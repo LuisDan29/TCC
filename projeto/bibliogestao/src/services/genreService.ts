@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase-client";
 
-export async function findOrCreateGenres(genres: string[]) {
+export async function getOrCreateGenres(genres: string[]) {
   const genreIds: number[] = [];
 
   for (const name of genres) {

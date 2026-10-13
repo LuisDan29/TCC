@@ -1,27 +1,24 @@
 interface AuthorFieldsProps {
-  authorFullName: string[];
-  setAuthorFullName: React.Dispatch<React.SetStateAction<string[]>>;
+  authors: string[];
+  setAuthors: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-function AuthorFields({
-  authorFullName,
-  setAuthorFullName,
-}: AuthorFieldsProps) {
+function AuthorFields({ authors, setAuthors }: AuthorFieldsProps) {
   function addAuthor() {
-    setAuthorFullName([...authorFullName, ""]);
+    setAuthors([...authors, ""]);
   }
 
   function handleAuthorChange(index: number, value: string) {
-    const newAuthors = [...authorFullName];
+    const newAuthors = [...authors];
     newAuthors[index] = value;
 
-    setAuthorFullName(newAuthors);
+    setAuthors(newAuthors);
   }
 
   function removeAuthor(index: number) {
-    const newAuthors = authorFullName.filter((_, i) => i != index);
+    const newAuthors = authors.filter((_, i) => i != index);
 
-    setAuthorFullName(newAuthors);
+    setAuthors(newAuthors);
   }
 
   return (
@@ -30,7 +27,7 @@ function AuthorFields({
       <fieldset className="border border-dark p-3 rounded mb-3">
         <legend className="float-none w-auto px-2">Autoria</legend>
 
-        {authorFullName.map((author, index) => (
+        {authors.map((author, index) => (
           <div className="input-group mb-3" key={index}>
             <label htmlFor={`author-${index}`} className="input-group-text">
               Autor {index + 1}

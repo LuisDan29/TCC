@@ -1,3 +1,5 @@
+import { validateISBN } from "../../../utils/bookValidation";
+
 interface BooksFieldProps {
   isbn: string;
   setISBN: React.Dispatch<React.SetStateAction<string>>;
@@ -73,13 +75,15 @@ function BookFields({
           <input
             required
             type="text"
-            maxLength={13}
             className="form-control"
             id="inputISBN"
             value={isbn}
             onChange={(event) => setISBN(event.target.value)}
           />
         </div>
+        {!validateISBN(isbn) && (
+          <div className="text-danger text-end">⚠️ Código ISBN inválido</div>
+        )}
         {/* Title -- Required */}
         <div className="mb-3">
           <label htmlFor="inputTitle" className="form-label">

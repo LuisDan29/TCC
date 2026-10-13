@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase-client";
 
-export async function findOrCreateAuthors(authors: string[]) {
+export async function getOrCreateAuthors(authors: string[]) {
   const authorIds: number[] = [];
 
   for (const name of authors) {
