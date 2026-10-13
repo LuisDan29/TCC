@@ -69,3 +69,52 @@ export async function createBook(bookData: BookFormdata) {
 
   return newBook;
 }
+
+export async function getRecentBooks() {
+  const { data, error } = await supabase
+    .from("Books")
+    .select(`
+      id, 
+      title, 
+      isbn, 
+      publication_year, 
+      stock_quantity,
+      created_at,
+      BookAuthors (
+        Authors (
+          full_name
+        )
+      )
+    `)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function searchBooks(searchText: string) {
+  const search = searchText.trim();
+
+  const { data, error } = await supabase
+    .from("Books")
+    .select(`
+      id,
+      title,
+      isbn, 
+      publication_year,
+      created_at,
+      BookAuthors (
+        Author (
+          full_name
+        )
+      )
+    `)
+    .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
+    .order("created_at", { ascending: false });
+  
+  if (error) throw error;
+
+  return data;
+}

@@ -120,6 +120,7 @@ function BookFields({
             type="number"
             className="form-control"
             id="inputEdition"
+            min="1"
             value={edition}
             onChange={(event) => setEdition(Number(event.target.value))}
           />

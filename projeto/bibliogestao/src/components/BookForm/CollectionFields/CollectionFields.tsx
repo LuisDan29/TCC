@@ -1,4 +1,3 @@
-// https://chatgpt.com/share/6abd420f-9a00-83e9-a88c-2d467d90f6ef?ogimg=plain
 interface CollectionFieldsProps {
   numberBooksInserted: number;
   setNumberBooksInserted: React.Dispatch<React.SetStateAction<number>>;
