@@ -35,4 +35,14 @@ export function validateISBN(isbn: string) {
   return false;
 }
 
-console.log(validateISBN("85-325-1101-X"));
+export function validateStockQuantity(
+  bookConditions: number[],
+  numberBooksInserted: number,
+) {
+  const totalDistributed = bookConditions.reduce(
+    (total, quantity) => total + quantity,
+    0,
+  );
+
+  return totalDistributed === numberBooksInserted;
+}

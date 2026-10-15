@@ -7,7 +7,10 @@ import CollectionFields from "./CollectionFields/CollectionFields";
 
 import { createBook } from "../../services/bookService";
 
-import { validateISBN } from "../../utils/bookValidation";
+import {
+  validateISBN,
+  validateStockQuantity,
+} from "../../utils/bookValidation";
 
 function BookForm() {
   // Book
@@ -43,12 +46,7 @@ function BookForm() {
   async function sendForm(event: React.SubmitEvent) {
     event.preventDefault();
 
-    const totalDistributed = bookConditions.reduce(
-      (total, quantity) => total + quantity,
-      0,
-    );
-
-    if (totalDistributed !== numberBooksInserted) {
+    if (!validateStockQuantity(bookConditions, numberBooksInserted)) {
       return;
     }
 

@@ -1,3 +1,5 @@
+import { validateStockQuantity } from "../../../utils/bookValidation";
+
 interface CollectionFieldsProps {
   numberBooksInserted: number;
   setNumberBooksInserted: React.Dispatch<React.SetStateAction<number>>;
@@ -121,11 +123,11 @@ function CollectionFields({
           </strong>
         </div>
 
-        {totalDistributed === numberBooksInserted && (
+        {validateStockQuantity(bookConditions, numberBooksInserted) && (
           <div className="text-success text-end">✅ Quantidades conferem</div>
         )}
 
-        {totalDistributed !== numberBooksInserted && (
+        {!validateStockQuantity(bookConditions, numberBooksInserted) && (
           <div className="text-danger text-end">⚠️ Quantidade não confere</div>
         )}
       </fieldset>
