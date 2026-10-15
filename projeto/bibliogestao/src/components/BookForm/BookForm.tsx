@@ -6,6 +6,7 @@ import PublisherFields from "./PublisherFields/PublisherFields";
 import CollectionFields from "./CollectionFields/CollectionFields";
 
 import { createBook } from "../../services/bookService";
+import { getBookByISBN } from "../../services/isbnApiService";
 
 import {
   validateISBN,
@@ -42,6 +43,34 @@ function BookForm() {
     0, // Bem conservado
     0, // Novo
   ]);
+
+  // API
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchMessage, setSearchMessage] = useState("");
+
+  async function fillBookFields(isbn: string) {
+    if (!validateISBN(isbn)) return;
+
+    setIsSearching(true);
+    setSearchMessage("");
+
+    try {
+      const bookInfo = await getBookByISBN(isbn);
+
+      setTitle(bookInfo.title ?? "");
+      setSubtitle(bookInfo.subtitle ?? "");
+      setAuthors(bookInfo.authors.length ? bookInfo.authors : [""]);
+      setPublicationYear(bookInfo.year ?? 2026);
+      setGenres(bookInfo.subjects.length ? bookInfo.subjects : []);
+      setPublisherName(bookInfo.publisher ?? "");
+
+      setSearchMessage("✅ Livro encontrado com sucesso!");
+    } catch (error) {
+      setSearchMessage("❌ Não foi possível encontrar o livro.");
+    } finally {
+      setIsSearching(false);
+    }
+  }
 
   async function sendForm(event: React.SubmitEvent) {
     event.preventDefault();
@@ -91,6 +120,9 @@ function BookForm() {
           <BookFields
             isbn={isbn}
             setISBN={setISBN}
+            fillBookFields={fillBookFields}
+            isSearching={isSearching}
+            searchMessage={searchMessage}
             title={title}
             setTitle={setTitle}
             subtitle={subtitle}
