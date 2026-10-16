@@ -33,6 +33,7 @@ function AuthorFields({ authors, setAuthors }: AuthorFieldsProps) {
               Autor {index + 1}
             </label>
             <input
+              required={index === 0}
               className="form-control"
               list="datalistOptions"
               id={`author-${index}`}

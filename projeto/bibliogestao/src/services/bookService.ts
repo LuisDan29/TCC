@@ -65,7 +65,7 @@ export async function createBook(bookData: BookFormdata) {
     .from("BookGenres")
     .insert(bookGenres);
 
-  if (bookGenresError) bookGenresError;
+  if (bookGenresError) throw bookGenresError;
 
   return newBook;
 }
@@ -73,7 +73,8 @@ export async function createBook(bookData: BookFormdata) {
 export async function getRecentBooks() {
   const { data, error } = await supabase
     .from("Books")
-    .select(`
+    .select(
+      `
       id, 
       title, 
       isbn, 
@@ -85,7 +86,8 @@ export async function getRecentBooks() {
           full_name
         )
       )
-    `)
+    `,
+    )
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -99,7 +101,8 @@ export async function searchBooks(searchText: string) {
 
   const { data, error } = await supabase
     .from("Books")
-    .select(`
+    .select(
+      `
       id,
       title,
       isbn, 
@@ -110,10 +113,11 @@ export async function searchBooks(searchText: string) {
           full_name
         )
       )
-    `)
+    `,
+    )
     .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
     .order("created_at", { ascending: false });
-  
+
   if (error) throw error;
 
   return data;

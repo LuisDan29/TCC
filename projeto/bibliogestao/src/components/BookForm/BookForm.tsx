@@ -12,6 +12,7 @@ import {
   validateISBN,
   validateStockQuantity,
 } from "../../utils/bookValidation";
+import { cleanList } from "../../utils/textUtils";
 
 function BookForm() {
   // Book
@@ -93,10 +94,10 @@ function BookForm() {
       publication_year: publicationYear,
 
       // Genres
-      genres: genres,
+      genres: cleanList(genres),
 
       // Authors
-      authors: authors,
+      authors: cleanList(authors),
 
       // Publisher
       publisher_name: publisherName,
@@ -107,6 +108,7 @@ function BookForm() {
       book_conditions: bookConditions,
     };
 
+    console.log(bookData);
     await createBook(bookData);
   }
 

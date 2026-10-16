@@ -13,6 +13,3 @@ export async function getBookByISBN(isbn: string) {
 
   return await response.json();
 }
-
-const book = await getBookByISBN("978-8582850015");
-console.log(book);

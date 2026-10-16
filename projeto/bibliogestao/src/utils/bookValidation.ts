@@ -1,4 +1,4 @@
-export function validateISBN(isbn: string) {
+export function validateISBN(isbn: string): boolean {
   isbn = isbn.replace(/[\s-]/g, "").toUpperCase();
 
   if (isbn.length === 13) {
@@ -38,7 +38,7 @@ export function validateISBN(isbn: string) {
 export function validateStockQuantity(
   bookConditions: number[],
   numberBooksInserted: number,
-) {
+): boolean {
   const totalDistributed = bookConditions.reduce(
     (total, quantity) => total + quantity,
     0,
