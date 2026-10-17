@@ -96,7 +96,7 @@ function BookFields({
             />
           </div>
         </div>
-        {!validateISBN(isbn) && (
+        {isbn.trim() !== "" && !validateISBN(isbn) && (
           <div className="text-danger text-end">⚠️ Código ISBN inválido</div>
         )}
         {validateISBN(isbn) && <div className="text-end">{searchMessage}</div>}

@@ -13,6 +13,17 @@ import {
   validateStockQuantity,
 } from "../../utils/bookValidation";
 import { cleanList } from "../../utils/textUtils";
+import { getErrorMessage } from "../../utils/errorMessages";
+
+const CURRENT_YEAR = new Date().getFullYear();
+const EMPTY_CONDITIONS = [
+  0, // Irrecuperável
+  0, // Precário
+  0, // Desgastado
+  0, // Regular
+  0, // Bem conservado
+  0, // Novo
+];
 
 function BookForm() {
   // Book
@@ -21,7 +32,7 @@ function BookForm() {
   const [subtitle, setSubtitle] = useState("");
   const [edition, setEdition] = useState(1);
   const [language, setLanguage] = useState("");
-  const [publicationYear, setPublicationYear] = useState(2026);
+  const [publicationYear, setPublicationYear] = useState(CURRENT_YEAR);
 
   // Genres
   const [genres, setGenres] = useState<string[]>([]);
@@ -36,18 +47,18 @@ function BookForm() {
 
   // Collection
   const [numberBooksInserted, setNumberBooksInserted] = useState(1);
-  const [bookConditions, setBookConditions] = useState<number[]>([
-    0, // Irrecuperável
-    0, // Precário
-    0, // Desgastado
-    0, // Regular
-    0, // Bem conservado
-    0, // Novo
-  ]);
+  const [bookConditions, setBookConditions] =
+    useState<number[]>(EMPTY_CONDITIONS);
 
   // API
   const [isSearching, setIsSearching] = useState(false);
   const [searchMessage, setSearchMessage] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   async function fillBookFields(isbn: string) {
     if (!validateISBN(isbn)) return;
@@ -73,43 +84,106 @@ function BookForm() {
     }
   }
 
+  function showError(message: string) {
+    setSubmitStatus({ type: "error", message });
+  }
+
+  function resetForm() {
+    setISBN("");
+    setTitle("");
+    setSubtitle("");
+    setEdition(1);
+    setLanguage("");
+    setPublicationYear(CURRENT_YEAR);
+    setGenres([]);
+    setInputGenres("");
+    setAuthors([""]);
+    setPublisherName("");
+    setPublisherCountry("");
+    setNumberBooksInserted(1);
+    setBookConditions(EMPTY_CONDITIONS);
+    setSearchMessage("");
+  }
+
   async function sendForm(event: React.SubmitEvent) {
     event.preventDefault();
 
-    if (!validateStockQuantity(bookConditions, numberBooksInserted)) {
+    if (isSubmitting) return;
+
+    const cleanTitle = title.trim();
+    const cleanPublisherName = publisherName.trim();
+    const cleanAuthors = cleanList(authors);
+
+    if (!validateISBN(isbn)) {
+      showError("Informe um ISBN válido.");
       return;
     }
 
-    if (!validateISBN(isbn)) {
+    if (!cleanTitle) {
+      showError("Informe o título do livro.");
+      return;
+    }
+
+    if (cleanAuthors.length === 0) {
+      showError("Informe pelo menos um autor.");
+      return;
+    }
+
+    if (!cleanPublisherName) {
+      showError("Informe o nome da editora.");
+      return;
+    }
+
+    if (!validateStockQuantity(bookConditions, numberBooksInserted)) {
+      showError(
+        "A soma das quantidades por condição deve ser igual à quantidade total.",
+      );
       return;
     }
 
     const bookData = {
       // Book
       isbn: isbn.replace(/[\s-]/g, "").toUpperCase(),
-      title: title,
-      subtitle: subtitle,
+      title: cleanTitle,
+      subtitle: subtitle.trim(),
       edition: edition,
-      language: language,
+      language: language.trim(),
       publication_year: publicationYear,
 
       // Genres
       genres: cleanList(genres),
 
       // Authors
-      authors: cleanList(authors),
+      authors: cleanAuthors,
 
       // Publisher
-      publisher_name: publisherName,
-      publisher_country: publisherCountry,
+      publisher_name: cleanPublisherName,
+      publisher_country: publisherCountry.trim(),
 
       // Collection
       number_books_inserted: numberBooksInserted,
       book_conditions: bookConditions,
     };
 
-    console.log(bookData);
-    await createBook(bookData);
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      await createBook(bookData);
+      setSubmitStatus({
+        type: "success",
+        message: "Livro cadastrado com sucesso!",
+      });
+      resetForm();
+    } catch (error) {
+      console.error("Erro ao cadastrar livro:", error);
+      setSubmitStatus({
+        type: "error",
+        message: getErrorMessage(error),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -160,9 +234,26 @@ function BookForm() {
             setBookConditions={setBookConditions}
           />
 
-          <button type="submit" className="btn btn-primary">
-            Enviar
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Cadastrando..." : "Cadastrar Livro"}
           </button>
+
+          {submitStatus && (
+            <div
+              role="alert"
+              className={`alert mt-3 ${
+                submitStatus.type === "success"
+                  ? "alert-success"
+                  : "alert-danger"
+              }`}
+            >
+              {submitStatus.message}
+            </div>
+          )}
         </form>
         <br></br>
       </section>
