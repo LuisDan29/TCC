@@ -44,5 +44,5 @@ export function validateStockQuantity(
     0,
   );
 
-  return totalDistributed === numberBooksInserted;
+  return numberBooksInserted > 0 && totalDistributed === numberBooksInserted;
 }

@@ -138,7 +138,7 @@ function BookFields({
             className="form-control"
             id="inputEdition"
             min="1"
-            value={edition}
+            value={edition || ""}
             onChange={(event) => setEdition(Number(event.target.value))}
           />
         </div>
@@ -161,12 +161,14 @@ function BookFields({
             Ano de Publicação
           </label>
           <input
+            required
             type="number"
             min={1000}
-            max={9999}
+            max={new Date().getFullYear() + 1}
             className="form-control"
             id="inputPublicationYear"
-            value={publicationYear}
+            placeholder="Ex.: 2008"
+            value={publicationYear || ""}
             onChange={(event) => setPublicationYear(Number(event.target.value))}
           />
         </div>

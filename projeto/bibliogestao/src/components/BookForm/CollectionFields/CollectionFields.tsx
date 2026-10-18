@@ -70,11 +70,13 @@ function CollectionFields({
           </label>
 
           <input
+            required
             type="number"
             className="form-control"
             id="inputNumberBooksInserted"
             min="1"
-            value={numberBooksInserted}
+            placeholder="1"
+            value={numberBooksInserted || ""}
             onChange={(event) =>
               setNumberBooksInserted(Number(event.target.value))
             }
@@ -105,7 +107,8 @@ function CollectionFields({
                 type="number"
                 className="form-control"
                 min="0"
-                value={bookConditions[condition.number]}
+                placeholder="0"
+                value={bookConditions[condition.number] || ""}
                 onChange={(event) =>
                   handleConditionChange(
                     condition.number,
