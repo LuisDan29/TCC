@@ -70,12 +70,13 @@ function BookForm() {
     try {
       const bookInfo = await getBookByISBN(isbn);
 
-      setTitle(bookInfo.title ?? "");
-      setSubtitle(bookInfo.subtitle ?? "");
-      setAuthors(bookInfo.authors.length ? bookInfo.authors : [""]);
-      setPublicationYear(bookInfo.year ?? 2026);
-      setGenres(bookInfo.subjects.length ? bookInfo.subjects : []);
-      setPublisherName(bookInfo.publisher ?? "");
+      setTitle(bookInfo.title);
+
+      if (bookInfo.subtitle) setSubtitle(bookInfo.subtitle);
+      if (bookInfo.publisher) setPublisherName(bookInfo.publisher);
+      if (bookInfo.authors.length > 0) setAuthors(bookInfo.authors);
+      if (bookInfo.subjects.length > 0) setGenres(bookInfo.subjects);
+      if (bookInfo.year !== null) setPublicationYear(bookInfo.year);
 
       setSearchMessage("✅ Livro encontrado com sucesso!");
     } catch (error) {
@@ -245,7 +246,7 @@ function BookForm() {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isSearching}
           >
             {isSubmitting ? "Cadastrando..." : "Cadastrar Livro"}
           </button>

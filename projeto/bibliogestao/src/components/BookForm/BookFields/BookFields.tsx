@@ -85,6 +85,7 @@ function BookFields({
               className="form-control"
               id="inputISBN"
               value={isbn}
+              disabled={isSearching}
               onChange={(event) => setISBN(event.target.value)}
             />
             <input
