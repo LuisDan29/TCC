@@ -3,6 +3,9 @@ import { validateISBN } from "../../../utils/bookValidation";
 interface BooksFieldProps {
   isbn: string;
   setISBN: React.Dispatch<React.SetStateAction<string>>;
+  fillBookFields: (isbn: string) => Promise<void>;
+  isSearching: boolean;
+  searchMessage: string;
   title: string;
   setTitle: React.Dispatch<React.SetStateAction<string>>;
   subtitle: string;
@@ -22,6 +25,9 @@ interface BooksFieldProps {
 function BookFields({
   isbn,
   setISBN,
+  fillBookFields,
+  isSearching,
+  searchMessage,
   title,
   setTitle,
   subtitle,
@@ -72,18 +78,29 @@ function BookFields({
           <label htmlFor="inputISBN" className="form-label">
             ISBN
           </label>
-          <input
-            required
-            type="text"
-            className="form-control"
-            id="inputISBN"
-            value={isbn}
-            onChange={(event) => setISBN(event.target.value)}
-          />
+          <div className="d-flex gap-3">
+            <input
+              required
+              type="text"
+              className="form-control"
+              id="inputISBN"
+              value={isbn}
+              disabled={isSearching}
+              onChange={(event) => setISBN(event.target.value)}
+            />
+            <input
+              className="btn btn-primary"
+              type="button"
+              disabled={isSearching}
+              value={isSearching ? "Buscando..." : "Buscar livro"}
+              onClick={() => fillBookFields(isbn)}
+            />
+          </div>
         </div>
-        {!validateISBN(isbn) && (
+        {isbn.trim() !== "" && !validateISBN(isbn) && (
           <div className="text-danger text-end">⚠️ Código ISBN inválido</div>
         )}
+        {validateISBN(isbn) && <div className="text-end">{searchMessage}</div>}
         {/* Title -- Required */}
         <div className="mb-3">
           <label htmlFor="inputTitle" className="form-label">
@@ -121,7 +138,7 @@ function BookFields({
             className="form-control"
             id="inputEdition"
             min="1"
-            value={edition}
+            value={edition || ""}
             onChange={(event) => setEdition(Number(event.target.value))}
           />
         </div>
@@ -144,12 +161,14 @@ function BookFields({
             Ano de Publicação
           </label>
           <input
+            required
             type="number"
             min={1000}
-            max={9999}
+            max={new Date().getFullYear() + 1}
             className="form-control"
             id="inputPublicationYear"
-            value={publicationYear}
+            placeholder="Ex.: 2008"
+            value={publicationYear || ""}
             onChange={(event) => setPublicationYear(Number(event.target.value))}
           />
         </div>

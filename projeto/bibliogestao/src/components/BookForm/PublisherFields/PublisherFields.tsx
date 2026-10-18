@@ -35,7 +35,6 @@ function PublisherFields({
             País de Origem
           </label>
           <input
-            required
             type="text"
             className="form-control"
             id="inputPublisherCountry"

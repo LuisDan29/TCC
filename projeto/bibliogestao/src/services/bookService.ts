@@ -1,79 +1,39 @@
 import { supabase } from "../lib/supabase-client";
-
 import type { BookFormdata } from "../types/BookFormData";
 
-import { getOrCreatePublisher } from "./publisherService";
-import { getOrCreateAuthors } from "./authorService";
-import { getOrCreateGenres } from "./genreService";
-
 export async function createBook(bookData: BookFormdata) {
-  const conditionsObject = Object.fromEntries(
+  const conditions = Object.fromEntries(
     bookData.book_conditions.map((quantity, index) => [
       `condition_${index}`,
       quantity,
     ]),
   );
 
-  const publisherId = await getOrCreatePublisher(
-    bookData.publisher_name,
-    bookData.publisher_country,
-  );
-
-  const newBook = {
-    // Foreign Keys
-    publisher_id: publisherId,
-    // Columns
-    isbn: bookData.isbn,
-    title: bookData.title,
-    subtitle: bookData.subtitle,
-    edition: bookData.edition,
-    language: bookData.language,
-    publication_year: bookData.publication_year,
-    stock_quantity: bookData.number_books_inserted,
-    conditions: conditionsObject,
-  };
-
-  const { data, error } = await supabase
-    .from("Books")
-    .insert(newBook)
-    .select("id")
-    .single();
+  const { data, error } = await supabase.rpc("create_book", {
+    p_isbn: bookData.isbn,
+    p_title: bookData.title,
+    p_subtitle: bookData.subtitle,
+    p_edition: bookData.edition,
+    p_language: bookData.language,
+    p_publication_year: bookData.publication_year,
+    p_stock_quantity: bookData.number_books_inserted,
+    p_conditions: conditions,
+    p_publisher_name: bookData.publisher_name,
+    p_publisher_country: bookData.publisher_country,
+    p_authors: bookData.authors,
+    p_genres: bookData.genres,
+  });
 
   if (error) throw error;
 
-  const bookId = data.id;
-  const authorIds = await getOrCreateAuthors(bookData.authors);
-  const genreIds = await getOrCreateGenres(bookData.genres);
-
-  const bookAuthors = authorIds.map((authorId) => ({
-    book_id: bookId,
-    author_id: authorId,
-  }));
-
-  const bookGenres = genreIds.map((genreId) => ({
-    book_id: bookId,
-    genre_id: genreId,
-  }));
-
-  const { error: bookAuthorsError } = await supabase
-    .from("BookAuthors")
-    .insert(bookAuthors);
-
-  if (bookAuthorsError) throw bookAuthorsError;
-
-  const { error: bookGenresError } = await supabase
-    .from("BookGenres")
-    .insert(bookGenres);
-
-  if (bookGenresError) bookGenresError;
-
-  return newBook;
+  return data;
 }
 
 export async function getRecentBooks() {
   const { data, error } = await supabase
     .from("Books")
-    .select(`
+    .select(
+      `
       id, 
       title, 
       isbn, 
@@ -85,7 +45,8 @@ export async function getRecentBooks() {
           full_name
         )
       )
-    `)
+    `,
+    )
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -99,7 +60,8 @@ export async function searchBooks(searchText: string) {
 
   const { data, error } = await supabase
     .from("Books")
-    .select(`
+    .select(
+      `
       id,
       title,
       isbn, 
@@ -110,10 +72,11 @@ export async function searchBooks(searchText: string) {
           full_name
         )
       )
-    `)
+    `,
+    )
     .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
     .order("created_at", { ascending: false });
-  
+
   if (error) throw error;
 
   return data;
