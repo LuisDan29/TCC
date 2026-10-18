@@ -9,6 +9,7 @@ import { createBook } from "../../services/bookService";
 import { getBookByISBN } from "../../services/isbnApiService";
 
 import {
+  normalizeISBN,
   validateISBN,
   validateStockQuantity,
 } from "../../utils/bookValidation";
@@ -78,7 +79,14 @@ function BookForm() {
 
       setSearchMessage("✅ Livro encontrado com sucesso!");
     } catch (error) {
-      setSearchMessage("❌ Não foi possível encontrar o livro.");
+      console.error("Erro ao consultar o ISBN:", error);
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível consultar o livro.";
+
+      setSearchMessage(`❌ ${message}`);
     } finally {
       setIsSearching(false);
     }
@@ -143,7 +151,7 @@ function BookForm() {
 
     const bookData = {
       // Book
-      isbn: isbn.replace(/[\s-]/g, "").toUpperCase(),
+      isbn: normalizeISBN(isbn),
       title: cleanTitle,
       subtitle: subtitle.trim(),
       edition: edition,
