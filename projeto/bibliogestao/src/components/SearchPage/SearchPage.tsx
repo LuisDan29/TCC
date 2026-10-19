@@ -22,6 +22,7 @@ function SearchPage() {
     const [searchText, setSearchText] = useState("");    
     const [viewMode, setViewMode] = useState<"recent" | "all"> ("recent");
     const [sortMode, setSortMode] = useState("newest");
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         let cancelled = false;
@@ -111,14 +112,24 @@ function SearchPage() {
             <hr className="my-3"/>            
             
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <h2 className="h4 mb-0 flex-shrink-0">
-                    {searchText.trim()
-                    ? "Resultados da pesquisa"
-                    :   viewMode === "all"
-                        ? "Todos os livros"
-                        : "Últimos livros cadastrados"}
-                </h2>
+                
+                <div>
+                    <h2 className="h4 mb-1">
+                        {searchText.trim()
+                        ? "Resultados da pesquisa"
+                        :   viewMode === "all"
+                            ? "Todos os livros"
+                            : "Últimos livros cadastrados"}
+                    </h2>
 
+                    {(searchText.trim() || viewMode === "all") && (
+                        <p className="text-muted small mb-0">
+                            {books.length} {books.length === 1 
+                            ? "livro encontrado" 
+                            : "livros encontrados"}
+                        </p>
+                    )}
+                </div>
                 <div className="d-flex align-items-center gap-2 mb-0">
                     <label htmlFor="sortMode" className="form-label small mb-0 text-nowrap">
                         Ordenar por
@@ -159,30 +170,40 @@ function SearchPage() {
                 </p>
             )}
 
-            <div className="list-group">
+            <div className="d-flex flex-column gap-3">
                 {books.map((book) => (
-                    <div key={book.id} className="list-group-item">
-                        <h3 className="h5">{book.title}</h3>
+                    <div 
+                        key={book.id} 
+                        className="card shadow-sm"
+                    >
+                        <div className="card-body">
+                            <h3 className="h5 card-title mb-3">
+                                {book.title}
+                            </h3>
 
-                        <p className="mb-1">
-                            Author:{" "}
-                            {book.BookAuthors
-                            .map((item) => item.Authors?.full_name)
-                            .filter(Boolean)
-                            .join(", ") || "Não informado"}
-                        </p>
+                            <p className="mb-2">
+                                <strong>Autor(es):</strong>{" "}    
+                                {book.BookAuthors
+                                    .map((item) => item.Authors?.full_name)
+                                    .filter(Boolean)
+                                    .join(", ") || "Não informado"}
+                            </p>
 
-                        <p className="mb-1">
-                            ISBN: {book.isbn}
-                        </p>
+                            <p className="mb-2">
+                                <strong>ISBN:</strong>{" "} 
+                                {book.isbn}
+                            </p>
 
-                        <p className="mb-1">
-                            Ano: {book.publication_year ?? "Não informado"}
-                        </p>
+                            <p className="mb-2">
+                                <strong>Ano:</strong>{" "}
+                                {(book.publication_year ?? "Não informado")}
+                            </p>
 
-                        <p className="mb-1">
-                            Exemplares: {book.stock_quantity}
-                        </p>
+                            <p className="mb-0">
+                                <strong>Quantidade total:</strong>{" "}
+                                {book.stock_quantity}
+                            </p>
+                        </div>
                     </div>
                 ))}
             </div>
