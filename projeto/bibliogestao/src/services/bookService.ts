@@ -32,8 +32,7 @@ export async function createBook(bookData: BookFormdata) {
 export async function getRecentBooks() {
   const { data, error } = await supabase
     .from("Books")
-    .select(
-      `
+    .select(`
       id, 
       title, 
       isbn, 
@@ -45,8 +44,7 @@ export async function getRecentBooks() {
           full_name
         )
       )
-    `,
-    )
+    `)
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -55,25 +53,85 @@ export async function getRecentBooks() {
   return data;
 }
 
+export async function getAllBooks(sortMode: string = "newest") {
+  let column = "created_at";
+  let ascending = false;
+
+  switch (sortMode) {
+    case "oldest":
+      ascending = true;
+      break;
+
+    case "title_asc":
+      column = "title";
+      ascending = true;
+      break;
+
+    case "title_desc":
+      column = "title";
+      ascending = false;
+      break;
+
+    case "year_asc":
+      column = "publication_year";
+      ascending = true;
+      break;
+
+    case "year_desc":
+      column = "publication_year";
+      ascending = false;
+      break;
+
+    case "stock_asc":
+      column = "stock_quantity";
+      ascending = true;
+      break;
+
+    case "stock_desc":
+      column = "stock_quantity";
+      ascending = false;
+      break;
+  }
+
+  const { data, error } = await supabase
+    .from("Books")
+    .select(`
+      id,
+      title,
+      isbn,
+      publication_year,
+      stock_quantity,
+      created_at,
+      BookAuthors (
+        Authors (
+          full_name
+        )
+      )
+    `)
+    .order(column, { ascending });
+
+  if (error) throw error;
+
+  return data;
+} 
+
 export async function searchBooks(searchText: string) {
   const search = searchText.trim();
 
   const { data, error } = await supabase
     .from("Books")
-    .select(
-      `
+    .select(`
       id,
       title,
       isbn, 
       publication_year,
       created_at,
       BookAuthors (
-        Author (
+        Authors (
           full_name
         )
       )
-    `,
-    )
+    `)
     .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
     .order("created_at", { ascending: false });
 

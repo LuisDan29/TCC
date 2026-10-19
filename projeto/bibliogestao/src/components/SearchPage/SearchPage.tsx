@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getRecentBooks, searchBooks } from "../../services/bookService";
+import { getRecentBooks, getAllBooks, searchBooks } from "../../services/bookService";
 
 interface Book {
     id: number;
@@ -19,32 +19,46 @@ function SearchPage() {
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
-    const [searchText, setSearchText] = useState("");
-    
-    const filteredBooks = books.filter((book) => {
-        const search = searchText.toLowerCase().trim();
-
-        return (
-            book.title.toLowerCase().includes(search) ||
-            book.isbn.toLowerCase().includes(search)
-        );
-    });
+    const [searchText, setSearchText] = useState("");    
+    const [viewMode, setViewMode] = useState<"recent" | "all"> ("recent");
+    const [sortMode, setSortMode] = useState("newest");
 
     useEffect(() => {
+        let cancelled = false;
+        
         async function loadBooks() {
+            setLoading(true);
+            setErrorMessage("");
+
             try {
-                const data = await getRecentBooks();
-                setBooks(data);                
+                const data = searchText.trim()
+                ? await searchBooks(searchText)
+                : viewMode === "all"
+                    ? await getAllBooks()
+                    : await getRecentBooks();
+
+                if (!cancelled) {
+                    setBooks(data);
+                }                                
             } catch (error) {
-                console.error("Erro ao carregar livros:", error);
-                setErrorMessage("Não foi possível carregar os livros.");
+                console.error("Erro ao carregar livros: ", error);
+
+                if (!cancelled) {
+                    setErrorMessage("Não foi possível carregar os livros.");
+                }
             } finally {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
         }
-        
-        loadBooks();        
-    }, []);
+                
+        loadBooks();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [searchText, viewMode]);
 
     return (
         <main className="container py-4">
@@ -60,10 +74,72 @@ function SearchPage() {
                 />
             </div>
 
+            <h2 className="h6 fw-semibold mb-2">
+                Visualização do catálogo
+            </h2>
+            <div className="d-flex gap-2 mb-4">
+                <button
+                    type="button"
+                    className={`btn rounded-pill flex-fill ${
+                        !searchText.trim() && viewMode === "recent"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                    }`}
+                    onClick={() => {
+                        setViewMode("recent");
+                        setSearchText("");
+                    }}
+                >
+                    Últimos Cadastros
+                </button>
+                <button
+                    type="button"
+                    className={`btn rounded-pill flex-fill ${
+                        !searchText.trim() && viewMode === "all"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                    }`}
+                    onClick={() => {
+                        setViewMode("all");
+                        setSearchText("");
+                    }}
+                >
+                    Todos os livros
+                </button>
+            </div>
+
+            <hr className="my-3"/>
+
+            <div className="mb-4">
+                <label htmlFor="sortMode" className="form-label h6 fw-semibold mb-2">
+                    Ordenar por
+                </label>
+
+                <select
+                    id="sortMode"
+                    className="form-select"
+                    value={sortMode}
+                    onChange={(event) => setSortMode(event.target.value)}
+                >
+                    <option value="newest">Cadastro: mais recente</option>
+                    <option value="oldest">Cadastro: mais antigo</option>
+                    <option value="title_asc">Título: A-Z</option>
+                    <option value="title_desc">Título: Z-A</option>
+                    <option value="year_desc">Publicação: mais recente</option>
+                    <option value="year_asc">Publicação: mais antiga</option>
+                    <option value="stock_desc">Estoque: maior quantidade</option>
+                    <option value="stock_asc">Estoque: menor quantidade</option>
+                </select>
+            </div>
+
+            <hr className="my-3"/>
+
             <h2 className="h4">
                 {searchText.trim()
                 ? "Resultados da pesquisa"
-                : "Últimos livros cadastrados"}
+                :   viewMode === "all"
+                    ? "Todos os livros"
+                    : "Últimos livros cadastrados"}
             </h2>
             
             {loading && <p>Carregando livros...</p>}
@@ -74,7 +150,7 @@ function SearchPage() {
                 </div>
             )}
 
-            {!loading && !errorMessage && filteredBooks.length === 0 && (
+            {!loading && !errorMessage && books.length === 0 && (
                 <p>
                     {searchText.trim()
                         ? "Nenhum livro encontrado."
@@ -84,7 +160,7 @@ function SearchPage() {
             )}
 
             <div className="list-group">
-                {filteredBooks.map((book) => (
+                {books.map((book) => (
                     <div key={book.id} className="list-group-item">
                         <h3 className="h5">{book.title}</h3>
 
