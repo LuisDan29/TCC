@@ -121,12 +121,14 @@ function SearchPage() {
                             ? "Todos os livros"
                             : "Últimos livros cadastrados"}
                     </h2>
-
-                    {(searchText.trim() || viewMode === "all") && (
+                    
+                    {(searchText.trim() || viewMode === "all" || viewMode === "recent") && (
                         <p className="text-muted small mb-0">
-                            {books.length} {books.length === 1 
+                            {viewMode === "recent" && !searchText.trim()
+                            ? "10 últimos livros cadastrados"
+                            : `${books.length} ${books.length === 1 
                             ? "livro encontrado" 
-                            : "livros encontrados"}
+                            : "livros encontrados"}`}
                         </p>
                     )}
                 </div>
