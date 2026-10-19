@@ -32,10 +32,10 @@ function SearchPage() {
 
             try {
                 const data = searchText.trim()
-                ? await searchBooks(searchText)
+                ? await searchBooks(searchText, sortMode)
                 : viewMode === "all"
-                    ? await getAllBooks()
-                    : await getRecentBooks();
+                    ? await getAllBooks(sortMode)
+                    : await getRecentBooks(sortMode);
 
                 if (!cancelled) {
                     setBooks(data);
@@ -58,7 +58,7 @@ function SearchPage() {
         return () => {
             cancelled = true;
         };
-    }, [searchText, viewMode]);
+    }, [searchText, viewMode, sortMode]);
 
     return (
         <main className="container py-4">
@@ -108,39 +108,39 @@ function SearchPage() {
                 </button>
             </div>
 
-            <hr className="my-3"/>
+            <hr className="my-3"/>            
+            
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h2 className="h4 mb-0 flex-shrink-0">
+                    {searchText.trim()
+                    ? "Resultados da pesquisa"
+                    :   viewMode === "all"
+                        ? "Todos os livros"
+                        : "Últimos livros cadastrados"}
+                </h2>
 
-            <div className="mb-4">
-                <label htmlFor="sortMode" className="form-label h6 fw-semibold mb-2">
-                    Ordenar por
-                </label>
+                <div className="d-flex align-items-center gap-2 mb-0">
+                    <label htmlFor="sortMode" className="form-label small mb-0 text-nowrap">
+                        Ordenar por
+                    </label>
 
-                <select
-                    id="sortMode"
-                    className="form-select"
-                    value={sortMode}
-                    onChange={(event) => setSortMode(event.target.value)}
-                >
-                    <option value="newest">Cadastro: mais recente</option>
-                    <option value="oldest">Cadastro: mais antigo</option>
-                    <option value="title_asc">Título: A-Z</option>
-                    <option value="title_desc">Título: Z-A</option>
-                    <option value="year_desc">Publicação: mais recente</option>
-                    <option value="year_asc">Publicação: mais antiga</option>
-                    <option value="stock_desc">Estoque: maior quantidade</option>
-                    <option value="stock_asc">Estoque: menor quantidade</option>
-                </select>
+                    <select
+                        id="sortMode"
+                        className="form-select form-select-sm"
+                        value={sortMode}
+                        onChange={(event) => setSortMode(event.target.value)}
+                    >
+                        <option value="newest">Cadastro: mais recente</option>
+                        <option value="oldest">Cadastro: mais antigo</option>
+                        <option value="title_asc">Título: A-Z</option>
+                        <option value="title_desc">Título: Z-A</option>
+                        <option value="year_desc">Publicação: mais recente</option>
+                        <option value="year_asc">Publicação: mais antiga</option>
+                        <option value="stock_desc">Estoque: maior quantidade</option>
+                        <option value="stock_asc">Estoque: menor quantidade</option>
+                    </select>
+                </div>
             </div>
-
-            <hr className="my-3"/>
-
-            <h2 className="h4">
-                {searchText.trim()
-                ? "Resultados da pesquisa"
-                :   viewMode === "all"
-                    ? "Todos os livros"
-                    : "Últimos livros cadastrados"}
-            </h2>
             
             {loading && <p>Carregando livros...</p>}
 

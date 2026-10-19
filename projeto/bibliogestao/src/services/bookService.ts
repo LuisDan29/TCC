@@ -29,34 +29,10 @@ export async function createBook(bookData: BookFormdata) {
   return data;
 }
 
-export async function getRecentBooks() {
-  const { data, error } = await supabase
-    .from("Books")
-    .select(`
-      id, 
-      title, 
-      isbn, 
-      publication_year, 
-      stock_quantity,
-      created_at,
-      BookAuthors (
-        Authors (
-          full_name
-        )
-      )
-    `)
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  if (error) throw error;
-
-  return data;
-}
-
-export async function getAllBooks(sortMode: string = "newest") {
+function getSortOptions(sortMode: string) {
   let column = "created_at";
   let ascending = false;
-
+      
   switch (sortMode) {
     case "oldest":
       ascending = true;
@@ -93,6 +69,38 @@ export async function getAllBooks(sortMode: string = "newest") {
       break;
   }
 
+  return { column, ascending }
+}
+
+export async function getRecentBooks(sortMode: string = "newest") {
+  const { column, ascending } = getSortOptions(sortMode);
+
+  const { data, error } = await supabase
+    .from("Books")
+    .select(`
+      id, 
+      title, 
+      isbn, 
+      publication_year, 
+      stock_quantity,
+      created_at,
+      BookAuthors (
+        Authors (
+          full_name
+        )
+      )
+    `)
+    .order(column, { ascending })
+    .limit(10);
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function getAllBooks(sortMode: string = "newest") {
+  const { column, ascending } = getSortOptions(sortMode);
+
   const { data, error } = await supabase
     .from("Books")
     .select(`
@@ -115,16 +123,22 @@ export async function getAllBooks(sortMode: string = "newest") {
   return data;
 } 
 
-export async function searchBooks(searchText: string) {
+export async function searchBooks(
+  searchText: string,
+  sortMode: string = "newest"
+) {
+
   const search = searchText.trim();
+  const { column, ascending } = getSortOptions(sortMode);
 
   const { data, error } = await supabase
     .from("Books")
     .select(`
       id,
       title,
-      isbn, 
+      isbn,
       publication_year,
+      stock_quantity,
       created_at,
       BookAuthors (
         Authors (
@@ -133,7 +147,7 @@ export async function searchBooks(searchText: string) {
       )
     `)
     .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
-    .order("created_at", { ascending: false });
+    .order(column, { ascending });
 
   if (error) throw error;
 
