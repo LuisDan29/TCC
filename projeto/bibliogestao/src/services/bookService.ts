@@ -29,11 +29,55 @@ export async function createBook(bookData: BookFormdata) {
   return data;
 }
 
-export async function getRecentBooks() {
+function getSortOptions(sortMode: string) {
+  let column = "created_at";
+  let ascending = false;
+      
+  switch (sortMode) {
+    case "oldest":
+      ascending = true;
+      break;
+
+    case "title_asc":
+      column = "title";
+      ascending = true;
+      break;
+
+    case "title_desc":
+      column = "title";
+      ascending = false;
+      break;
+
+    case "year_asc":
+      column = "publication_year";
+      ascending = true;
+      break;
+
+    case "year_desc":
+      column = "publication_year";
+      ascending = false;
+      break;
+
+    case "stock_asc":
+      column = "stock_quantity";
+      ascending = true;
+      break;
+
+    case "stock_desc":
+      column = "stock_quantity";
+      ascending = false;
+      break;
+  }
+
+  return { column, ascending }
+}
+
+export async function getRecentBooks(sortMode: string = "newest") {
+  const { column, ascending } = getSortOptions(sortMode);
+
   const { data, error } = await supabase
     .from("Books")
-    .select(
-      `
+    .select(`
       id, 
       title, 
       isbn, 
@@ -45,9 +89,8 @@ export async function getRecentBooks() {
           full_name
         )
       )
-    `,
-    )
-    .order("created_at", { ascending: false })
+    `)
+    .order(column, { ascending })
     .limit(10);
 
   if (error) throw error;
@@ -55,29 +98,78 @@ export async function getRecentBooks() {
   return data;
 }
 
-export async function searchBooks(searchText: string) {
-  const search = searchText.trim();
+export async function getAllBooks(
+  sortMode: string = "newest",
+  page: number = 1,
+  pageSize: number = 20
+) {
+  
+  const { column, ascending } = getSortOptions(sortMode);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from("Books")
-    .select(
-      `
+    .select(`
       id,
       title,
-      isbn, 
+      isbn,
       publication_year,
+      stock_quantity,
       created_at,
       BookAuthors (
-        Author (
+        Authors (
           full_name
         )
       )
-    `,
-    )
-    .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
-    .order("created_at", { ascending: false });
+    `, {count: "exact"})
+
+    .order(column, { ascending })
+    .range(from, to);
 
   if (error) throw error;
 
-  return data;
+  return {
+    books: data ?? [],
+    totalCount: count ?? 0,
+  };
+} 
+
+export async function searchBooks(
+  searchText: string,
+  sortMode: string = "newest",
+  page: number = 1,
+  pageSize: number = 20
+) {
+
+  const search = searchText.trim();
+  const { column, ascending } = getSortOptions(sortMode);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error, count } = await supabase
+    .from("Books")
+    .select(`
+      id,
+      title,
+      isbn,
+      publication_year,
+      stock_quantity,
+      created_at,
+      BookAuthors (
+        Authors (
+          full_name
+        )
+      )
+    `, {count: "exact"})
+    .or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
+    .order(column, { ascending })
+    .range(from,to);
+
+  if (error) throw error;
+
+  return {
+    books: data ?? [],
+    totalCount: count ?? 0,
+  };
 }
