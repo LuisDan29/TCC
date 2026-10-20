@@ -37,11 +37,11 @@ function SearchPage() {
     const [genreSearch, setGenreSearch] = useState("");
     const [publisherSearch, setPublisherSearch] = useState("");
     const [languageSearch, setLanguageSearch] = useState("");
-
     const [showAuthorOptions, setShowAuthorOptions] = useState(false);
     const [showGenreOptions, setShowGenreOptions] = useState(false);
     const [showPublisherOptions, setShowPublisherOptions] = useState(false);
     const [showLanguageOptions, setShowLanguageOptions] = useState(false);
+    
     const [draftFilters, setDraftFilters] =
         useState<AdvancedBookFilters>({
             authorIds: [],
@@ -57,6 +57,7 @@ function SearchPage() {
             createdFrom: "",
             createdTo: "",
         });
+
     const [appliedFilters, setAppliedFilters] =
         useState<AdvancedBookFilters>({
             authorIds: [],
@@ -72,11 +73,36 @@ function SearchPage() {
             createdFrom: "",
             createdTo: "",
         });
+
     const [filterOptions, setFilterOptions] = useState<BookFilterOptions>({
         authors: [],
         genres: [],
         publishers: [],
     });
+
+    const filteredAuthors = filterOptions.authors
+    .filter((author) =>
+        author.full_name
+            .toLowerCase()
+            .includes(authorSearch.toLowerCase())
+    )
+    .sort((a, b) => a.full_name.localeCompare(b.full_name, "pt-BR"));
+
+    const filteredGenres = filterOptions.genres
+        .filter((genre) =>
+            genre.name
+                .toLowerCase()
+                .includes(genreSearch.toLowerCase())
+        )
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+
+    const filteredPublishers = filterOptions.publishers
+        .filter((publisher) =>
+            publisher.name
+                .toLowerCase()
+                .includes(publisherSearch.toLowerCase())
+        )
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
     const pageSize = 20;
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -88,9 +114,10 @@ function SearchPage() {
         pageInputNumber > totalPages;
 
     function goToPage(page: number) {
-        if (page < 1 || page > totalPages) return
-            setCurrentPage(page);
-            setPageInput(String(page));
+        if (page < 1 || page > totalPages) return;
+
+        setCurrentPage(page);
+        setPageInput(String(page));
     }
 
     function handlePageInputChange(value: string) {
@@ -242,67 +269,121 @@ function SearchPage() {
                             <div className="row g-3">
                                 {/* Autor */}
                                 <div className="col-12 col-md-6">
-                                    <label htmlFor="filterAuthors" className="form-label">
+                                    <label htmlFor="filterAuthorsSearch" className="form-label">
                                         Autor
                                     </label>
-                                    <select
-                                        id="filterAuthors"
-                                        className="form-select"
-                                        multiple
-                                        size={4}
-                                        value={draftFilters.authorIds.map(String)}
-                                        onChange={(event) => {
-                                            const authorIds = Array.from(
-                                                event.target.selectedOptions,
-                                                (option) => Number(option.value)
-                                            );
 
-                                            setDraftFilters((previous) => ({
-                                                ...previous,
-                                                authorIds,
-                                            }));
+                                    <input
+                                        id="filterAuthorsSearch"
+                                        type="search"
+                                        className="form-control mb-2"
+                                        placeholder="Pesquisar autor..."
+                                        value={authorSearch}
+                                        onChange={(event) => {
+                                            setAuthorSearch(event.target.value);
+                                            setShowAuthorOptions(true);
                                         }}
-                                    >
-                                        {filterOptions.authors.map((author) => (
-                                            <option key={author.id} value={author.id}>
-                                                {author.full_name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        onFocus={() => setShowAuthorOptions(true)}
+                                    />
+
+                                    {showAuthorOptions && (
+                                        <div
+                                            className="border rounded p-2"
+                                            style={{ maxHeight: "180px", overflowY: "auto" }}
+                                        >
+                                            {filteredAuthors.map((author) => (
+                                                <label
+                                                    key={author.id}
+                                                    className="d-flex align-items-center gap-2 py-1"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-check-input mt-0"
+                                                        checked={draftFilters.authorIds.includes(author.id)}
+                                                        onChange={(event) => {
+                                                            setDraftFilters((previous) => ({
+                                                                ...previous,
+                                                                authorIds: event.target.checked
+                                                                    ? [...previous.authorIds, author.id]
+                                                                    : previous.authorIds.filter(
+                                                                        (id) => id !== author.id
+                                                                    ),
+                                                            }));
+                                                        }}
+                                                    />
+                                                    <span>{author.full_name}</span>
+                                                </label>
+                                            ))}
+
+                                            {filteredAuthors.length === 0 && (
+                                                <p className="small text-muted mb-0">
+                                                    Nenhum autor encontrado.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <div className="form-text">
-                                        Você pode selecionar vários autores.
+                                        Pesquise e marque um ou mais autores.
                                     </div>
                                 </div>
 
                                 {/* Gênero */}
                                 <div className="col-12 col-md-6">
-                                    <label htmlFor="filterGenres" className="form-label">
+                                    <label htmlFor="filterGenresSearch" className="form-label">
                                         Gênero literário
                                     </label>
-                                    <select
-                                        id="filterGenres"
-                                        className="form-select"
-                                        multiple
-                                        size={4}
-                                        value={draftFilters.genreIds.map(String)}
-                                        onChange={(event) => {
-                                            const genreIds = Array.from(
-                                                event.target.selectedOptions,
-                                                (option) => Number(option.value)
-                                            );
 
-                                            setDraftFilters((previous) => ({
-                                                ...previous,
-                                                genreIds,
-                                            }));
+                                    <input
+                                        id="filterGenresSearch"
+                                        type="search"
+                                        className="form-control mb-2"
+                                        placeholder="Pesquisar gênero..."
+                                        value={genreSearch}
+                                        onChange={(event) => {
+                                            setGenreSearch(event.target.value);
+                                            setShowGenreOptions(true);
                                         }}
-                                    >
-                                        {filterOptions.genres.map((genre) => (
-                                            <option key={genre.id} value={genre.id}>
-                                                {genre.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        onFocus={() => setShowGenreOptions(true)}
+                                    />
+
+                                    {showGenreOptions && (
+                                        <div
+                                            className="border rounded p-2"
+                                            style={{ maxHeight: "180px", overflowY: "auto" }}
+                                        >
+                                            {filteredGenres.map((genre) => (
+                                                <label
+                                                    key={genre.id}
+                                                    className="d-flex align-items-center gap-2 py-1"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-check-input mt-0"
+                                                        checked={draftFilters.genreIds.includes(genre.id)}
+                                                        onChange={(event) => {
+                                                            setDraftFilters((previous) => ({
+                                                                ...previous,
+                                                                genreIds: event.target.checked
+                                                                    ? [...previous.genreIds, genre.id]
+                                                                    : previous.genreIds.filter(
+                                                                        (id) => id !== genre.id
+                                                                    ),
+                                                            }));
+                                                        }}
+                                                    />
+                                                    <span>{genre.name}</span>
+                                                </label>
+                                            ))}
+
+                                            {filteredGenres.length === 0 && (
+                                                <p className="small text-muted mb-0">
+                                                    Nenhum gênero encontrado.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <div className="form-text">
                                         Serão considerados livros de qualquer gênero selecionado.
                                     </div>
@@ -310,27 +391,72 @@ function SearchPage() {
 
                                 {/* Editora */}
                                 <div className="col-12 col-md-6">
-                                    <label htmlFor="filterPublisher" className="form-label">
+                                    <label htmlFor="filterPublisherSearch" className="form-label">
                                         Editora
                                     </label>
-                                    <select
-                                        id="filterPublisher"
-                                        className="form-select"
-                                        value={draftFilters.publisherId}
-                                        onChange={(event) =>
-                                            setDraftFilters((previous) => ({
-                                                ...previous,
-                                                publisherId: event.target.value,
-                                            }))
-                                        }
-                                    >
-                                        <option value="">Todas as editoras</option>
-                                        {filterOptions.publishers.map((publisher) => (
-                                            <option key={publisher.id} value={publisher.id}>
-                                                {publisher.name}
-                                            </option>
-                                        ))}
-                                    </select>
+
+                                    <input
+                                        id="filterPublisherSearch"
+                                        type="search"
+                                        className="form-control mb-2"
+                                        placeholder="Pesquisar editora..."
+                                        value={publisherSearch}
+                                        onChange={(event) => {
+                                            setPublisherSearch(event.target.value);
+                                            setShowPublisherOptions(true);
+                                        }}
+                                        onFocus={() => setShowPublisherOptions(true)}
+                                    />
+
+                                    {showPublisherOptions && (
+                                        <div
+                                            className="border rounded p-2"
+                                            style={{ maxHeight: "180px", overflowY: "auto" }}
+                                        >
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-secondary w-100 text-start mb-1"
+                                                onClick={() => {
+                                                    setDraftFilters((previous) => ({
+                                                        ...previous,
+                                                        publisherId: "",
+                                                    }));
+                                                    setPublisherSearch("");
+                                                    setShowPublisherOptions(false);
+                                                }}
+                                            >
+                                                Todas as editoras
+                                            </button>
+
+                                            {filteredPublishers.map((publisher) => (
+                                                <button
+                                                    key={publisher.id}
+                                                    type="button"
+                                                    className={`btn btn-sm w-100 text-start ${
+                                                        draftFilters.publisherId === String(publisher.id)
+                                                            ? "btn-primary"
+                                                            : "btn-light"
+                                                    }`}
+                                                    onClick={() => {
+                                                        setDraftFilters((previous) => ({
+                                                            ...previous,
+                                                            publisherId: String(publisher.id),
+                                                        }));
+                                                        setPublisherSearch(publisher.name);
+                                                        setShowPublisherOptions(false);
+                                                    }}
+                                                >
+                                                    {publisher.name}
+                                                </button>
+                                            ))}
+
+                                            {filteredPublishers.length === 0 && (
+                                                <p className="small text-muted mb-0">
+                                                    Nenhuma editora encontrada.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Idioma */}
