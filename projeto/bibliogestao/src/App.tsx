@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import AppLayout from "./Layouts/AppLayout";
 import LoginForm from "./components/LoginForm/LoginForm";
