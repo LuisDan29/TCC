@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { getRecentBooks, getAllBooks, searchBooks } from "../../services/bookService";
+import {
+    getRecentBooks,
+    getAllBooks,
+    searchBooks,
+    getBookFilterOptions,
+    type AdvancedBookFilters,
+    type BookFilterOptions,
+} from "../../services/bookService";
 
 interface Book {
     id: number;
@@ -25,6 +32,51 @@ function SearchPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [pageInput, setPageInput] = useState("1");
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [authorSearch, setAuthorSearch] = useState("");
+    const [genreSearch, setGenreSearch] = useState("");
+    const [publisherSearch, setPublisherSearch] = useState("");
+    const [languageSearch, setLanguageSearch] = useState("");
+
+    const [showAuthorOptions, setShowAuthorOptions] = useState(false);
+    const [showGenreOptions, setShowGenreOptions] = useState(false);
+    const [showPublisherOptions, setShowPublisherOptions] = useState(false);
+    const [showLanguageOptions, setShowLanguageOptions] = useState(false);
+    const [draftFilters, setDraftFilters] =
+        useState<AdvancedBookFilters>({
+            authorIds: [],
+            genreIds: [],
+            publisherId: "",
+            yearExact: "",
+            yearFrom: "",
+            yearTo: "",
+            language: "",
+            availability: "all",
+            minStock: "",
+            maxStock: "",
+            createdFrom: "",
+            createdTo: "",
+        });
+    const [appliedFilters, setAppliedFilters] =
+        useState<AdvancedBookFilters>({
+            authorIds: [],
+            genreIds: [],
+            publisherId: "",
+            yearExact: "",
+            yearFrom: "",
+            yearTo: "",
+            language: "",
+            availability: "all",
+            minStock: "",
+            maxStock: "",
+            createdFrom: "",
+            createdTo: "",
+        });
+    const [filterOptions, setFilterOptions] = useState<BookFilterOptions>({
+        authors: [],
+        genres: [],
+        publishers: [],
+    });
 
     const pageSize = 20;
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -104,6 +156,19 @@ function SearchPage() {
         };
     }, [searchText, viewMode, sortMode, currentPage]);
 
+    useEffect(() => {
+        async function loadFilterOptions() {
+            try {
+                const options = await getBookFilterOptions();
+                setFilterOptions(options);
+            } catch (error) {
+                console.error("Erro ao carregar opções dos filtros:", error);
+            }
+        }
+
+        loadFilterOptions();
+    }, []);
+
     return (
         <main className="container py-4">
             <h1>Pesquisar livros</h1>
@@ -159,7 +224,348 @@ function SearchPage() {
                     Todos os livros
                 </button>
             </div>
+            <div className="mb-3">
+                <button
+                    type="button"
+                    className="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                >
+                    <span>Filtros avançados</span>
+                    <span aria-hidden="true">
+                        {showAdvancedFilters ? "−" : "+"}
+                    </span>
+                </button>
 
+                {showAdvancedFilters && (
+                    <div className="mt-3">                        
+                        <div className="card card-body">
+                            <div className="row g-3">
+                                {/* Autor */}
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterAuthors" className="form-label">
+                                        Autor
+                                    </label>
+                                    <select
+                                        id="filterAuthors"
+                                        className="form-select"
+                                        multiple
+                                        size={4}
+                                        value={draftFilters.authorIds.map(String)}
+                                        onChange={(event) => {
+                                            const authorIds = Array.from(
+                                                event.target.selectedOptions,
+                                                (option) => Number(option.value)
+                                            );
+
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                authorIds,
+                                            }));
+                                        }}
+                                    >
+                                        {filterOptions.authors.map((author) => (
+                                            <option key={author.id} value={author.id}>
+                                                {author.full_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="form-text">
+                                        Você pode selecionar vários autores.
+                                    </div>
+                                </div>
+
+                                {/* Gênero */}
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterGenres" className="form-label">
+                                        Gênero literário
+                                    </label>
+                                    <select
+                                        id="filterGenres"
+                                        className="form-select"
+                                        multiple
+                                        size={4}
+                                        value={draftFilters.genreIds.map(String)}
+                                        onChange={(event) => {
+                                            const genreIds = Array.from(
+                                                event.target.selectedOptions,
+                                                (option) => Number(option.value)
+                                            );
+
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                genreIds,
+                                            }));
+                                        }}
+                                    >
+                                        {filterOptions.genres.map((genre) => (
+                                            <option key={genre.id} value={genre.id}>
+                                                {genre.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="form-text">
+                                        Serão considerados livros de qualquer gênero selecionado.
+                                    </div>
+                                </div>
+
+                                {/* Editora */}
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterPublisher" className="form-label">
+                                        Editora
+                                    </label>
+                                    <select
+                                        id="filterPublisher"
+                                        className="form-select"
+                                        value={draftFilters.publisherId}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                publisherId: event.target.value,
+                                            }))
+                                        }
+                                    >
+                                        <option value="">Todas as editoras</option>
+                                        {filterOptions.publishers.map((publisher) => (
+                                            <option key={publisher.id} value={publisher.id}>
+                                                {publisher.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Idioma */}
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterLanguage" className="form-label">
+                                        Idioma
+                                    </label>
+                                    <input
+                                        id="filterLanguage"
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Ex.: Português"
+                                        value={draftFilters.language}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                language: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                {/* Ano exato */}
+                                <div className="col-12 col-md-4">
+                                    <label htmlFor="filterYearExact" className="form-label">
+                                        Ano exato
+                                    </label>
+                                    <input
+                                        id="filterYearExact"
+                                        type="number"
+                                        className="form-control"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ex.: 2020"
+                                        value={draftFilters.yearExact}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                yearExact: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                {/* Intervalo de publicação */}
+                                <div className="col-12 col-md-4">
+                                    <label htmlFor="filterYearFrom" className="form-label">
+                                        Publicação a partir de
+                                    </label>
+                                    <input
+                                        id="filterYearFrom"
+                                        type="number"
+                                        className="form-control"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ano inicial"
+                                        value={draftFilters.yearFrom}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                yearFrom: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                <div className="col-12 col-md-4">
+                                    <label htmlFor="filterYearTo" className="form-label">
+                                        Publicação até
+                                    </label>
+                                    <input
+                                        id="filterYearTo"
+                                        type="number"
+                                        className="form-control"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ano final"
+                                        value={draftFilters.yearTo}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                yearTo: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                {/* Disponibilidade */}
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterAvailability" className="form-label">
+                                        Disponibilidade em estoque
+                                    </label>
+                                    <select
+                                        id="filterAvailability"
+                                        className="form-select"
+                                        value={draftFilters.availability}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                availability: event.target.value as
+                                                    AdvancedBookFilters["availability"],
+                                            }))
+                                        }
+                                    >
+                                        <option value="all">Todas as disponibilidades</option>
+                                        <option value="available">Disponível em estoque</option>
+                                        <option value="unavailable">Sem estoque</option>
+                                    </select>
+                                </div>
+
+                                {/* Estoque mínimo */}
+                                <div className="col-12 col-md-3">
+                                    <label htmlFor="filterMinStock" className="form-label">
+                                        Estoque mínimo
+                                    </label>
+                                    <input
+                                        id="filterMinStock"
+                                        type="number"
+                                        className="form-control"
+                                        min="0"
+                                        step="1"
+                                        value={draftFilters.minStock}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                minStock: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                {/* Estoque máximo */}
+                                <div className="col-12 col-md-3">
+                                    <label htmlFor="filterMaxStock" className="form-label">
+                                        Estoque máximo
+                                    </label>
+                                    <input
+                                        id="filterMaxStock"
+                                        type="number"
+                                        className="form-control"
+                                        min="0"
+                                        step="1"
+                                        value={draftFilters.maxStock}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                maxStock: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                {/* Data de cadastro */}
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterCreatedFrom" className="form-label">
+                                        Cadastro a partir de
+                                    </label>
+                                    <input
+                                        id="filterCreatedFrom"
+                                        type="date"
+                                        className="form-control"
+                                        value={draftFilters.createdFrom}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                createdFrom: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                <div className="col-12 col-md-6">
+                                    <label htmlFor="filterCreatedTo" className="form-label">
+                                        Cadastro até
+                                    </label>
+                                    <input
+                                        id="filterCreatedTo"
+                                        type="date"
+                                        className="form-control"
+                                        value={draftFilters.createdTo}
+                                        onChange={(event) =>
+                                            setDraftFilters((previous) => ({
+                                                ...previous,
+                                                createdTo: event.target.value,
+                                            }))
+                                        }
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={() => {
+                                        const emptyFilters: AdvancedBookFilters = {
+                                            authorIds: [],
+                                            genreIds: [],
+                                            publisherId: "",
+                                            yearExact: "",
+                                            yearFrom: "",
+                                            yearTo: "",
+                                            language: "",
+                                            availability: "all",
+                                            minStock: "",
+                                            maxStock: "",
+                                            createdFrom: "",
+                                            createdTo: "",
+                                        };
+
+                                        setDraftFilters(emptyFilters);
+                                        setAppliedFilters(emptyFilters);
+                                        setCurrentPage(1);
+                                        setPageInput("1");
+                                    }}
+                                >
+                                    Limpar filtros
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                        setAppliedFilters({ ...draftFilters });
+                                        setCurrentPage(1);
+                                        setPageInput("1");
+                                    }}
+                                >
+                                    Aplicar filtros
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
             <hr className="my-3"/>            
             
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
