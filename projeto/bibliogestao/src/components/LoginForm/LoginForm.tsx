@@ -1,6 +1,5 @@
-import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import logonova from "../assets/logonova.png";
+import logonova from "../../assets/logonova.png"
 
 function LoginForm() {
   return (
