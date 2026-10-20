@@ -23,6 +23,27 @@ function SearchPage() {
     const [viewMode, setViewMode] = useState<"recent" | "all"> ("recent");
     const [sortMode, setSortMode] = useState("newest");
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [pageInput, setPageInput] = useState("1");
+
+    const pageSize = 20;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const pageInputNumber = Number(pageInput);
+    const isPageInputInvalid =
+        pageInput.trim() === "" ||
+        !Number.isInteger(pageInputNumber) ||
+        pageInputNumber < 1 ||
+        pageInputNumber > totalPages;
+
+    function goToPage(page: number) {
+        if (page < 1 || page > totalPages) return
+            setCurrentPage(page);
+            setPageInput(String(page));
+    }
+
+    function handlePageInputChange(value: string) {
+        setPageInput(value);
+    }
 
     useEffect(() => {
         let cancelled = false;
@@ -32,14 +53,36 @@ function SearchPage() {
             setErrorMessage("");
 
             try {
-                const data = searchText.trim()
-                ? await searchBooks(searchText, sortMode)
-                : viewMode === "all"
-                    ? await getAllBooks(sortMode)
-                    : await getRecentBooks(sortMode);
+                let loadedBooks: Book[] = [];
+                let loadedTotalCount = 0;
+
+                if (searchText.trim()) {
+                    const result = await searchBooks(
+                        searchText,
+                        sortMode,
+                        currentPage
+                    );
+
+                    loadedBooks = result.books;
+                    loadedTotalCount = result.totalCount;
+
+                } else if (viewMode === "all") {
+                    const result = await getAllBooks(
+                        sortMode,
+                        currentPage
+                    );
+
+                    loadedBooks = result.books;
+                    loadedTotalCount = result.totalCount;
+
+                } else {
+                    loadedBooks = await getRecentBooks(sortMode);
+                    loadedTotalCount = loadedBooks.length;
+                }
 
                 if (!cancelled) {
-                    setBooks(data);
+                    setBooks(loadedBooks);
+                    setTotalCount(loadedTotalCount);
                 }                                
             } catch (error) {
                 console.error("Erro ao carregar livros: ", error);
@@ -59,7 +102,7 @@ function SearchPage() {
         return () => {
             cancelled = true;
         };
-    }, [searchText, viewMode, sortMode]);
+    }, [searchText, viewMode, sortMode, currentPage]);
 
     return (
         <main className="container py-4">
@@ -71,7 +114,11 @@ function SearchPage() {
                     className="form-control"
                     placeholder="Pesquisar por título ou ISBN..."
                     value={searchText}
-                    onChange={(event) => setSearchText(event.target.value)}
+                    onChange={(event) => {
+                        setSearchText(event.target.value);
+                        setCurrentPage(1);
+                        setPageInput("1");
+                    }}
                 />
             </div>
 
@@ -89,6 +136,8 @@ function SearchPage() {
                     onClick={() => {
                         setViewMode("recent");
                         setSearchText("");
+                        setCurrentPage(1);
+                        setPageInput("1");
                     }}
                 >
                     Últimos Cadastros
@@ -103,6 +152,8 @@ function SearchPage() {
                     onClick={() => {
                         setViewMode("all");
                         setSearchText("");
+                        setCurrentPage(1);
+                        setPageInput("1");
                     }}
                 >
                     Todos os livros
@@ -126,7 +177,7 @@ function SearchPage() {
                         <p className="text-muted small mb-0">
                             {viewMode === "recent" && !searchText.trim()
                             ? "10 últimos livros cadastrados"
-                            : `${books.length} ${books.length === 1 
+                            : `${totalCount} ${totalCount === 1 
                             ? "livro encontrado" 
                             : "livros encontrados"}`}
                         </p>
@@ -141,7 +192,11 @@ function SearchPage() {
                         id="sortMode"
                         className="form-select form-select-sm"
                         value={sortMode}
-                        onChange={(event) => setSortMode(event.target.value)}
+                        onChange={(event) => {
+                            setSortMode(event.target.value);
+                            setCurrentPage(1);
+                            setPageInput("1");
+                        }}
                     >
                         <option value="newest">Cadastro: mais recente</option>
                         <option value="oldest">Cadastro: mais antigo</option>
@@ -209,6 +264,74 @@ function SearchPage() {
                     </div>
                 ))}
             </div>
+
+            {!loading &&
+                !errorMessage &&
+                (searchText.trim() !== "" || viewMode === "all") &&
+                totalPages > 0 && (
+                <div className="mt-4">
+                    <div className="d-flex justify-content-center align-items-center gap-4">
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0"
+                            style={{ width: "40px", height: "40px" }}
+                            disabled={currentPage === 1}
+                            onClick={() => goToPage(currentPage - 1)}
+                            aria-label="Página anterior"
+                        >
+                            <span aria-hidden="true" style={{ fontSize: "24px", lineHeight: 1, transform: "translateY(-2px)" }}>
+                                ←
+                            </span>
+                        </button>
+
+                        <div className="d-flex align-items-center gap-2">
+                            <label htmlFor="pageInput" className="mb-0 text-nowrap">
+                                Página
+                            </label>
+
+                            <input
+                                id="pageInput"
+                                type="number"
+                                min="1"
+                                max={totalPages}
+                                step="1"
+                                className={`form-control text-center ${
+                                    isPageInputInvalid ? "border border-danger" : ""
+                                }`}
+                                style={{ width: "70px" }}
+                                value={pageInput}
+                                onChange={(event) =>
+                                    handlePageInputChange(event.target.value)
+                                }
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter" && !isPageInputInvalid) {
+                                        goToPage(pageInputNumber);
+                                    }
+                                }}
+                            />
+
+                            <span className="text-nowrap">de {totalPages}</span>
+                        </div>
+
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0"
+                            style={{ width: "40px", height: "40px" }}
+                            disabled={currentPage === totalPages}
+                            onClick={() => goToPage(currentPage + 1)}
+                            aria-label="Próxima página"
+                        >
+                            <span aria-hidden="true" style={{ fontSize: "24px", lineHeight: 1, transform: "translateY(-2px)" }}>
+                                →
+                            </span>
+                        </button>
+                    </div>
+
+                    <p className="text-center text-muted small mt-2 mb-0">
+                        Mostrando {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, totalCount)} de {totalCount} livros
+                    </p>
+                </div>
+            )}
         </main>
     );
 }
