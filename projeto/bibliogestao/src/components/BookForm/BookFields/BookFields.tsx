@@ -1,4 +1,6 @@
 import { validateISBN } from "../../../utils/bookValidation";
+import { useState } from "react";
+import BarcodeScanner from "../../BarcodeScanner/BarcodeScanner";
 
 interface BooksFieldProps {
   isbn: string;
@@ -43,6 +45,13 @@ function BookFields({
   inputGenres,
   setInputGenres,
 }: BooksFieldProps) {
+  const [showScanner, setShowScanner] = useState(false);
+
+  function handleScanned(code: string) {
+    setShowScanner(false);
+    setISBN(code);
+  }
+
   const addGenre = () => {
     const genre = inputGenres.trim();
 
@@ -95,10 +104,23 @@ function BookFields({
               value={isSearching ? "Buscando..." : "Buscar livro"}
               onClick={() => fillBookFields(isbn)}
             />
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={() => setShowScanner(true)}
+            >
+              Escanear
+            </button>
           </div>
+          {showScanner && (
+            <BarcodeScanner
+              onClose={() => setShowScanner(false)}
+              onDetected={handleScanned}
+            />
+          )}
         </div>
         {isbn.trim() !== "" && !validateISBN(isbn) && (
-          <div className="text-danger text-end">⚠️ Código ISBN inválido</div>
+          <div className="text-danger text-end">Código ISBN inválido</div>
         )}
         {validateISBN(isbn) && <div className="text-end">{searchMessage}</div>}
         {/* Title -- Required */}
