@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import AuthLayout from "../layouts/AuthLayout";
 import AppLayout from "../layouts/AppLayout";
+import ProtectedRoute from "./ProtectedRoute";
 
 import HomePage from "../pages/HomePage/HomePage";
 import SearchPage from "../pages/SearchPage/SearchPage";
@@ -18,10 +19,12 @@ function AppRoutes() {
         <Route path={PATHS.login} element={<LoginPage />} />
       </Route>
 
-      <Route element={<AppLayout />}>
-        <Route path={PATHS.home} element={<HomePage />} />
-        <Route path={PATHS.books} element={<SearchPage />} />
-        <Route path={PATHS.booksNew} element={<BookCreatePage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path={PATHS.home} element={<HomePage />} />
+          <Route path={PATHS.books} element={<SearchPage />} />
+          <Route path={PATHS.booksNew} element={<BookCreatePage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
