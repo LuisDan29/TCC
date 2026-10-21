@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { PATHS } from "../routes/paths";
 import logonova from "../assets/logonova.png";
@@ -5,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 function AppLayout() {
   const { session, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="app-shell min-vh-100" style={{ backgroundColor: "#0f1c35" }}>
@@ -134,12 +136,19 @@ function AppLayout() {
             color: #fff;
             background-color: rgba(255, 255, 255, .1);
           }
+
+          /* Computador: o menu fica exatamente como antes (itens lado a lado) */
+          @media (min-width: 992px) {
+            .app-shell .app-nav .navbar-collapse {
+              display: contents !important;
+            }
+          }
         `}
       </style>
 
       <nav
-        className="navbar navbar-expand navbar-dark app-nav"
-        style={{ backgroundColor: "#0f1c35" }}
+        className="navbar navbar-expand-lg navbar-dark app-nav"
+        style={{ background: "linear-gradient(160deg, #0f1c35, #03070f" }}
       >
         <div className="container">
           <span className="navbar-brand fw-bold d-flex align-items-center gap-2">
@@ -150,27 +159,59 @@ function AppLayout() {
             />
             <span className="d-none d-sm-inline">BiblioGestão</span>
           </span>
-          <div className="navbar-nav gap-1">
-            <NavLink to="/" end className="nav-link">
-              Início
-            </NavLink>
-            <NavLink to={PATHS.books} end className="nav-link">
-              Pesquisar
-            </NavLink>
-            <NavLink to={PATHS.booksNew} className="nav-link">
-              Cadastrar
-            </NavLink>
-          </div>
+          <button
+            type="button"
+            className="navbar-toggler"
+            aria-controls="menu-principal"
+            aria-expanded={menuOpen}
+            aria-label="Abrir menu"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="navbar-toggler-icon" />
+          </button>
 
-          <div className="d-flex align-items-center gap-3">
-            <span className="text-white-50 small">{session?.user.email}</span>
-            <button
-              type="button"
-              className="btn btn-outline-light btn-sm"
-              onClick={signOut}
-            >
-              Sair
-            </button>
+          <div
+            id="menu-principal"
+            className={`navbar-collapse collapse${menuOpen ? " show" : ""}`}
+          >
+            <div className="navbar-nav gap-1">
+              <NavLink
+                to="/"
+                end
+                className="nav-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                Início
+              </NavLink>
+              <NavLink
+                to={PATHS.books}
+                end
+                className="nav-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                Pesquisar
+              </NavLink>
+              <NavLink
+                to={PATHS.booksNew}
+                className="nav-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                Cadastrar
+              </NavLink>
+            </div>
+
+            <div className="d-flex align-items-center gap-3 py-2 py-lg-0">
+              <span className="text-white-50 small text-break">
+                {session?.user.email}
+              </span>
+              <button
+                type="button"
+                className="btn btn-outline-light btn-sm"
+                onClick={signOut}
+              >
+                Sair
+              </button>
+            </div>
           </div>
         </div>
       </nav>
