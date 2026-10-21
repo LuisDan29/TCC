@@ -1,4 +1,5 @@
 import { validateStockQuantity } from "../../../utils/bookValidation";
+import { BOOK_CONDITIONS } from "../../../constants/bookConditions";
 
 interface CollectionFieldsProps {
   numberBooksInserted: number;
@@ -7,38 +8,7 @@ interface CollectionFieldsProps {
   setBookConditions: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-const conditions = [
-  {
-    number: 0,
-    name: "Irrecuperável",
-    description: "Sem condição de uso.",
-  },
-  {
-    number: 1,
-    name: "Precária",
-    description: "Apresenta muitos sinais de uso e danos.",
-  },
-  {
-    number: 2,
-    name: "Desgastado",
-    description: "Apresenta sinais de desgaste.",
-  },
-  {
-    number: 3,
-    name: "Regular",
-    description: "Condição aceitável, com sinais normais de uso.",
-  },
-  {
-    number: 4,
-    name: "Bem conservado",
-    description: "Pouco sinais de uso, ótimo estado.",
-  },
-  {
-    number: 5,
-    name: "Novo",
-    description: "Sem sinais de uso.",
-  },
-];
+const conditions = BOOK_CONDITIONS;
 
 function CollectionFields({
   numberBooksInserted,

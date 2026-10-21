@@ -5,6 +5,12 @@ export function getErrorMessage(error: unknown): string {
         return "Já existe um livro cadastrado com esse ISBN.";
       case "42501":
         return "Você não tem permissão pra realizar essa ação";
+      case "P0002":
+        return "Livro não encontrado ou sem permissão para alterá-lo. Atualize a página e tente novamente.";
+      case "23503":
+        return "Não foi possível concluir: existem registros vinculados a este livro.";
+      case "22023":
+        return "As quantidades informadas são inválidas.";
     }
   }
 

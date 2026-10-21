@@ -6,21 +6,18 @@ import {
     getBookFilterOptions,
     type AdvancedBookFilters,
     type BookFilterOptions,
+    type BookListItem,
 } from "../../services/bookService";
+import {
+    hasActiveFilters,
+    validateAdvancedFilters,
+} from "../../utils/bookFilterValidation";
+import BookDetailsModal from "./BookDetailsModal";
+import EditBookInfoModal from "./EditBookInfoModal";
+import EditQuantitiesModal from "./EditQuantitiesModal";
+import DeleteBookModal from "./DeleteBookModal";
 
-interface Book {
-    id: number;
-    title: string;
-    isbn: string;
-    publication_year: number | null;
-    stock_quantity: number;
-    created_at: string;
-    BookAuthors: {
-        Authors: {
-            full_name: string;
-        } | null;
-    }[];
-}
+type Book = BookListItem;
 
 function SearchPage() {
     const [books, setBooks] = useState<Book[]>([]);
@@ -36,11 +33,19 @@ function SearchPage() {
     const [authorSearch, setAuthorSearch] = useState("");
     const [genreSearch, setGenreSearch] = useState("");
     const [publisherSearch, setPublisherSearch] = useState("");
-    const [languageSearch, setLanguageSearch] = useState("");
+    const [filterError, setFilterError] = useState("");
+    const [reloadKey, setReloadKey] = useState(0);
+    const [feedback, setFeedback] = useState<{
+        type: "success" | "danger";
+        message: string;
+    } | null>(null);
+    const [detailsBookId, setDetailsBookId] = useState<number | null>(null);
+    const [editInfoBookId, setEditInfoBookId] = useState<number | null>(null);
+    const [editQuantitiesBookId, setEditQuantitiesBookId] = useState<number | null>(null);
+    const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
     const [showAuthorOptions, setShowAuthorOptions] = useState(false);
     const [showGenreOptions, setShowGenreOptions] = useState(false);
     const [showPublisherOptions, setShowPublisherOptions] = useState(false);
-    const [showLanguageOptions, setShowLanguageOptions] = useState(false);
     
     const [draftFilters, setDraftFilters] =
         useState<AdvancedBookFilters>({
@@ -124,8 +129,59 @@ function SearchPage() {
         setPageInput(value);
     }
 
+    const filtersActive = hasActiveFilters(appliedFilters);
+
+    function clearAdvancedFilters() {
+        const emptyFilters: AdvancedBookFilters = {
+            authorIds: [],
+            genreIds: [],
+            publisherId: "",
+            yearExact: "",
+            yearFrom: "",
+            yearTo: "",
+            language: "",
+            availability: "all",
+            minStock: "",
+            maxStock: "",
+            createdFrom: "",
+            createdTo: "",
+        };
+
+        setDraftFilters(emptyFilters);
+        setAppliedFilters(emptyFilters);
+        setFilterError("");
+        setCurrentPage(1);
+        setPageInput("1");
+    }
+
+    function applyAdvancedFilters() {
+        const error = validateAdvancedFilters(draftFilters);
+
+        if (error) {
+            setFilterError(error);
+            return;
+        }
+
+        setFilterError("");
+        setAppliedFilters({ ...draftFilters });
+        setCurrentPage(1);
+        setPageInput("1");
+    }
+
+    // Chamado depois que uma edição/exclusão foi confirmada pelo Supabase:
+    // fecha os modais, mostra a mensagem e recarrega a página atual.
+    function handleBookChanged(message: string) {
+        setDetailsBookId(null);
+        setEditInfoBookId(null);
+        setEditQuantitiesBookId(null);
+        setBookToDelete(null);
+        setFeedback({ type: "success", message });
+        setReloadKey((previous) => previous + 1);
+    }
+
     useEffect(() => {
         let cancelled = false;
+        let redirected = false;
         
         async function loadBooks() {
             setLoading(true);
@@ -139,16 +195,21 @@ function SearchPage() {
                     const result = await searchBooks(
                         searchText,
                         sortMode,
-                        currentPage
+                        currentPage,
+                        pageSize,
+                        appliedFilters
                     );
 
                     loadedBooks = result.books;
                     loadedTotalCount = result.totalCount;
 
-                } else if (viewMode === "all") {
+                } else if (viewMode === "all" || filtersActive) {
+                    // com filtros avançados a consulta abrange todo o catálogo
                     const result = await getAllBooks(
                         sortMode,
-                        currentPage
+                        currentPage,
+                        pageSize,
+                        appliedFilters
                     );
 
                     loadedBooks = result.books;
@@ -157,6 +218,21 @@ function SearchPage() {
                 } else {
                     loadedBooks = await getRecentBooks(sortMode);
                     loadedTotalCount = loadedBooks.length;
+                }
+
+                // A página atual ficou vazia (ex.: o último livro dela foi
+                // excluído): volta para a última página que ainda existe.
+                if (
+                    !cancelled &&
+                    loadedBooks.length === 0 &&
+                    loadedTotalCount > 0 &&
+                    currentPage > 1
+                ) {
+                    const lastPage = Math.ceil(loadedTotalCount / pageSize);
+                    redirected = true;
+                    setCurrentPage(lastPage);
+                    setPageInput(String(lastPage));
+                    return;
                 }
 
                 if (!cancelled) {
@@ -170,7 +246,7 @@ function SearchPage() {
                     setErrorMessage("Não foi possível carregar os livros.");
                 }
             } finally {
-                if (!cancelled) {
+                if (!cancelled && !redirected) {
                     setLoading(false);
                 }
             }
@@ -181,7 +257,7 @@ function SearchPage() {
         return () => {
             cancelled = true;
         };
-    }, [searchText, viewMode, sortMode, currentPage]);
+    }, [searchText, viewMode, sortMode, currentPage, appliedFilters, filtersActive, reloadKey]);
 
     useEffect(() => {
         async function loadFilterOptions() {
@@ -199,6 +275,21 @@ function SearchPage() {
     return (
         <main className="container py-4">
             <h1>Pesquisar livros</h1>
+
+            {feedback && (
+                <div
+                    role="alert"
+                    className={`alert alert-${feedback.type} alert-dismissible`}
+                >
+                    {feedback.message}
+                    <button
+                        type="button"
+                        className="btn-close"
+                        aria-label="Fechar mensagem"
+                        onClick={() => setFeedback(null)}
+                    />
+                </div>
+            )}
 
             <div className="mb-4">
                 <input
@@ -647,31 +738,17 @@ function SearchPage() {
                                 </div>
                             </div>
 
+                            {filterError && (
+                                <div role="alert" className="alert alert-danger mt-3 mb-0">
+                                    {filterError}
+                                </div>
+                            )}
+
                             <div className="d-flex justify-content-end gap-2 mt-4">
                                 <button
                                     type="button"
                                     className="btn btn-outline-secondary"
-                                    onClick={() => {
-                                        const emptyFilters: AdvancedBookFilters = {
-                                            authorIds: [],
-                                            genreIds: [],
-                                            publisherId: "",
-                                            yearExact: "",
-                                            yearFrom: "",
-                                            yearTo: "",
-                                            language: "",
-                                            availability: "all",
-                                            minStock: "",
-                                            maxStock: "",
-                                            createdFrom: "",
-                                            createdTo: "",
-                                        };
-
-                                        setDraftFilters(emptyFilters);
-                                        setAppliedFilters(emptyFilters);
-                                        setCurrentPage(1);
-                                        setPageInput("1");
-                                    }}
+                                    onClick={clearAdvancedFilters}
                                 >
                                     Limpar filtros
                                 </button>
@@ -679,11 +756,7 @@ function SearchPage() {
                                 <button
                                     type="button"
                                     className="btn btn-primary"
-                                    onClick={() => {
-                                        setAppliedFilters({ ...draftFilters });
-                                        setCurrentPage(1);
-                                        setPageInput("1");
-                                    }}
+                                    onClick={applyAdvancedFilters}
                                 >
                                     Aplicar filtros
                                 </button>
@@ -692,6 +765,18 @@ function SearchPage() {
                     </div>
                 )}
             </div>
+            {filtersActive && (
+                <div className="alert alert-info d-flex flex-wrap justify-content-between align-items-center gap-2 py-2 mb-0">
+                    <span>Filtros avançados aplicados. A busca abrange todo o catálogo.</span>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={clearAdvancedFilters}
+                    >
+                        Limpar filtros
+                    </button>
+                </div>
+            )}
             <hr className="my-3"/>            
             
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -700,6 +785,8 @@ function SearchPage() {
                     <h2 className="h4 mb-1">
                         {searchText.trim()
                         ? "Resultados da pesquisa"
+                        :   filtersActive
+                            ? "Livros filtrados"
                         :   viewMode === "all"
                             ? "Todos os livros"
                             : "Últimos livros cadastrados"}
@@ -707,7 +794,7 @@ function SearchPage() {
                     
                     {(searchText.trim() || viewMode === "all" || viewMode === "recent") && (
                         <p className="text-muted small mb-0">
-                            {viewMode === "recent" && !searchText.trim()
+                            {viewMode === "recent" && !searchText.trim() && !filtersActive
                             ? "10 últimos livros cadastrados"
                             : `${totalCount} ${totalCount === 1 
                             ? "livro encontrado" 
@@ -752,7 +839,7 @@ function SearchPage() {
 
             {!loading && !errorMessage && books.length === 0 && (
                 <p>
-                    {searchText.trim()
+                    {searchText.trim() || filtersActive
                         ? "Nenhum livro encontrado."
                         : "Nenhum livro cadastrado."
                     }
@@ -766,32 +853,73 @@ function SearchPage() {
                         className="card shadow-sm"
                     >
                         <div className="card-body">
-                            <h3 className="h5 card-title mb-3">
-                                {book.title}
-                            </h3>
+                            <div className="row g-3 align-items-center">
+                                {/* informações resumidas */}
+                                <div className="col-12 col-md" style={{ minWidth: 0 }}>
+                                    <h3 className="h5 card-title mb-3">
+                                        <button
+                                            type="button"
+                                            className="btn btn-link p-0 fs-5 fw-semibold text-start text-decoration-none"
+                                            onClick={() => setDetailsBookId(book.id)}
+                                        >
+                                            {book.title}
+                                        </button>
+                                    </h3>
 
-                            <p className="mb-2">
-                                <strong>Autor(es):</strong>{" "}    
-                                {book.BookAuthors
-                                    .map((item) => item.Authors?.full_name)
-                                    .filter(Boolean)
-                                    .join(", ") || "Não informado"}
-                            </p>
+                                    <p className="mb-2">
+                                        <strong>Autor(es):</strong>{" "}    
+                                        {book.BookAuthors
+                                            .map((item) => item.Authors?.full_name)
+                                            .filter(Boolean)
+                                            .join(", ") || "Não informado"}
+                                    </p>
 
-                            <p className="mb-2">
-                                <strong>ISBN:</strong>{" "} 
-                                {book.isbn}
-                            </p>
+                                    <p className="mb-2">
+                                        <strong>ISBN:</strong>{" "} 
+                                        {book.isbn}
+                                    </p>
 
-                            <p className="mb-2">
-                                <strong>Ano:</strong>{" "}
-                                {(book.publication_year ?? "Não informado")}
-                            </p>
+                                    <p className="mb-2">
+                                        <strong>Ano:</strong>{" "}
+                                        {(book.publication_year ?? "Não informado")}
+                                    </p>
 
-                            <p className="mb-0">
-                                <strong>Quantidade total:</strong>{" "}
-                                {book.stock_quantity}
-                            </p>
+                                    <p className="mb-0">
+                                        <strong>Quantidade total:</strong>{" "}
+                                        {book.stock_quantity}
+                                    </p>
+                                </div>
+
+                                {/* ações: à direita no computador, abaixo no celular */}
+                                <div className="col-12 col-md-auto">
+                                    <div
+                                        className="d-grid gap-2"
+                                        style={{ minWidth: "180px" }}
+                                    >
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-secondary btn-sm"
+                                            onClick={() => setEditInfoBookId(book.id)}
+                                        >
+                                            Editar informações
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-secondary btn-sm"
+                                            onClick={() => setEditQuantitiesBookId(book.id)}
+                                        >
+                                            Editar quantidades
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => setBookToDelete(book)}
+                                        >
+                                            Excluir cadastro
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -799,7 +927,7 @@ function SearchPage() {
 
             {!loading &&
                 !errorMessage &&
-                (searchText.trim() !== "" || viewMode === "all") &&
+                (searchText.trim() !== "" || viewMode === "all" || filtersActive) &&
                 totalPages > 0 && (
                 <div className="mt-4">
                     <div className="d-flex justify-content-center align-items-center gap-4">
@@ -863,6 +991,39 @@ function SearchPage() {
                         Mostrando {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, totalCount)} de {totalCount} livros
                     </p>
                 </div>
+            )}
+
+            {detailsBookId !== null && (
+                <BookDetailsModal
+                    bookId={detailsBookId}
+                    onClose={() => setDetailsBookId(null)}
+                />
+            )}
+
+            {editInfoBookId !== null && (
+                <EditBookInfoModal
+                    bookId={editInfoBookId}
+                    onClose={() => setEditInfoBookId(null)}
+                    onSaved={handleBookChanged}
+                />
+            )}
+
+            {editQuantitiesBookId !== null && (
+                <EditQuantitiesModal
+                    bookId={editQuantitiesBookId}
+                    onClose={() => setEditQuantitiesBookId(null)}
+                    onSaved={handleBookChanged}
+                />
+            )}
+
+            {bookToDelete && (
+                <DeleteBookModal
+                    bookId={bookToDelete.id}
+                    title={bookToDelete.title}
+                    isbn={bookToDelete.isbn}
+                    onClose={() => setBookToDelete(null)}
+                    onDeleted={handleBookChanged}
+                />
             )}
         </main>
     );
