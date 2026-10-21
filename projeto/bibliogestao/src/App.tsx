@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import AppLayout from "./Layouts/AppLayout";
+import HomePage from "./components/HomePage/HomePage";
 import LoginForm from "./components/LoginForm/LoginForm";
 import SearchPage from "./components/SearchPage/SearchPage";
 import BookForm from "./components/BookForm/BookForm";
@@ -13,7 +14,7 @@ function App() {
 
       {/* layout route: sem path, só element */}
       <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/livros" replace />} />
+        <Route index element={<HomePage />} />.
         <Route path="livros" element={<SearchPage />} />
         <Route path="livros/novo" element={<BookForm />} />
       </Route>

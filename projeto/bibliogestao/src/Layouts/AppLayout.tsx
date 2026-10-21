@@ -7,6 +7,7 @@ function AppLayout() {
         <div className="container">
           <span className="navbar-brand fw-bold">BiblioGestão</span>
           <div className="navbar-nav">
+            <NavLink to="/" end className="nav-link">Início</NavLink>
             <NavLink to="/livros" end className="nav-link">Pesquisar</NavLink>
             <NavLink to="/livros/novo" className="nav-link">Cadastrar</NavLink>
           </div>

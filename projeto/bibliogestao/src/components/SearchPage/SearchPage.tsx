@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
     getRecentBooks,
     getAllBooks,
@@ -20,11 +21,15 @@ import DeleteBookModal from "./DeleteBookModal";
 type Book = BookListItem;
 
 function SearchPage() {
+    // A Home envia ?q=texto (pesquisa) ou ?view=all (todos os livros)
+    const [searchParams] = useSearchParams();
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
-    const [searchText, setSearchText] = useState("");    
-    const [viewMode, setViewMode] = useState<"recent" | "all"> ("recent");
+    const [searchText, setSearchText] = useState(searchParams.get("q") ?? "");    
+    const [viewMode, setViewMode] = useState<"recent" | "all">(
+        searchParams.get("view") === "all" ? "all" : "recent"
+    );
     const [sortMode, setSortMode] = useState("newest");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);

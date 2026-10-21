@@ -1,5 +1,6 @@
 import { validateISBN } from "../../../utils/bookValidation";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import BarcodeScanner from "../../BarcodeScanner/BarcodeScanner";
 
 interface BooksFieldProps {
@@ -45,7 +46,11 @@ function BookFields({
   inputGenres,
   setInputGenres,
 }: BooksFieldProps) {
-  const [showScanner, setShowScanner] = useState(false);
+  // Vindo do botão "Escanear ISBN" da Home, já abre o scanner
+  const location = useLocation();
+  const [showScanner, setShowScanner] = useState(
+    Boolean((location.state as { scan?: boolean } | null)?.scan),
+  );
 
   function handleScanned(code: string) {
     setShowScanner(false);
