@@ -18,7 +18,7 @@ function PublisherFields({
         {/* Publisher Name -- Required */}
         <div className="mb-3">
           <label htmlFor="inputPublisherName" className="form-label fw-semibold">
-            Nome da Editora
+            Nome da Editora <span className="text-danger">*</span>
           </label>
           <input
             required

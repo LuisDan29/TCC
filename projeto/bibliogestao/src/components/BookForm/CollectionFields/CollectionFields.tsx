@@ -36,7 +36,7 @@ function CollectionFields({
 
         <div className="mb-5">
           <label htmlFor="inputNumberBooksInserted" className="form-label fw-semibold">
-            Quantidade total de livros a ser inseridos
+            Quantidade total de livros a ser inseridos <span className="text-danger">*</span>
           </label>
 
           <input

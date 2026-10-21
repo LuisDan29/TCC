@@ -90,7 +90,7 @@ function BookFields({
         {/* ISBN -- Required Text MaxLength=13 */}
         <div className="mb-3">
           <label htmlFor="inputISBN" className="form-label fw-semibold">
-            ISBN
+            ISBN <span className="text-danger">*</span>
           </label>
           <div className="d-flex flex-wrap gap-3">
             <input
@@ -132,7 +132,7 @@ function BookFields({
         {/* Title -- Required */}
         <div className="mb-3">
           <label htmlFor="inputTitle" className="form-label fw-semibold">
-            Título
+            Título <span className="text-danger">*</span>
           </label>
           <input
             required
@@ -186,7 +186,7 @@ function BookFields({
         {/* Publication Year -- Number Min=1000 Max=9999 */}
         <div className="mb-3">
           <label htmlFor="inputPublicationYear" className="form-label fw-semibold">
-            Ano de Publicação
+            Ano de Publicação <span className="text-danger">*</span>
           </label>
           <input
             required

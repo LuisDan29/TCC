@@ -33,7 +33,7 @@ function AuthorFields({ authors, setAuthors }: AuthorFieldsProps) {
               htmlFor={`author-${index}`}
               className="form-label fw-semibold"
             >
-              Autor {index + 1}
+              Autor {index + 1} <span className="text-danger">*</span>
             </label>
             <div className="d-flex gap-2">
               <input
