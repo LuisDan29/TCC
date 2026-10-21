@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
 
 import { getRecentBooks, type BookListItem } from "../../services/bookService";
 import {
@@ -20,7 +21,14 @@ const TEXTO = "#14204a";
 const TEXTO_SUAVE = "#5d6a8a";
 const BORDA = "#e3e8f4";
 
-const CORES_CAPA = ["#2f62e0", "#0f1f4d", "#7c3aed", "#0d9488", "#b45309", "#be123c"];
+const CORES_CAPA = [
+  "#2f62e0",
+  "#0f1f4d",
+  "#7c3aed",
+  "#0d9488",
+  "#b45309",
+  "#be123c",
+];
 
 // Deixa o .btn-primary do Bootstrap com o azul da Home
 const botaoAzul = {
@@ -87,7 +95,9 @@ function HomePage() {
     const text = searchText.trim();
 
     // A página de pesquisa lê o texto pelo parâmetro "q"
-    navigate(text ? `/livros?q=${encodeURIComponent(text)}` : "/livros");
+    navigate(
+      text ? `${PATHS.books}?q=${encodeURIComponent(text)}` : PATHS.books,
+    );
   }
 
   const cardAtalhoClasses =
@@ -203,7 +213,7 @@ function HomePage() {
                       className="btn btn-primary rounded-3 fw-semibold py-3 d-flex justify-content-center align-items-center gap-2"
                       style={botaoAzul}
                       onClick={() =>
-                        navigate("/livros/novo", { state: { scan: true } })
+                        navigate(PATHS.booksNew, { state: { scan: true } })
                       }
                     >
                       <CameraIcon size={20} /> Escanear ISBN
@@ -215,19 +225,25 @@ function HomePage() {
                     >
                       <span
                         className="flex-grow-1"
-                        style={{ height: 1, background: "rgba(255, 255, 255, .25)" }}
+                        style={{
+                          height: 1,
+                          background: "rgba(255, 255, 255, .25)",
+                        }}
                       />
                       ou
                       <span
                         className="flex-grow-1"
-                        style={{ height: 1, background: "rgba(255, 255, 255, .25)" }}
+                        style={{
+                          height: 1,
+                          background: "rgba(255, 255, 255, .25)",
+                        }}
                       />
                     </div>
                   </>
                 )}
 
                 <Link
-                  to="/livros/novo"
+                  to={PATHS.booksNew}
                   className="btn btn-outline-light rounded-3 fw-semibold py-3 d-flex justify-content-center align-items-center gap-2"
                 >
                   <PlusIcon size={22} /> Cadastrar manualmente
@@ -237,7 +253,7 @@ function HomePage() {
 
             <div className="col-12 col-md-6 col-lg-3">
               <Link
-                to="/livros"
+                to={PATHS.books}
                 className={cardAtalhoClasses}
                 style={{ borderColor: BORDA, color: AZUL }}
               >
@@ -286,7 +302,7 @@ function HomePage() {
               </h2>
 
               <Link
-                to="/livros?view=all"
+                to={`${PATHS.books}?view=all`}
                 className="fw-medium text-decoration-none"
                 style={{ color: AZUL }}
               >
@@ -304,7 +320,7 @@ function HomePage() {
               <div className="text-center py-4" style={{ color: TEXTO_SUAVE }}>
                 <p className="mb-3">Nenhum livro cadastrado ainda.</p>
                 <Link
-                  to="/livros/novo"
+                  to={PATHS.booksNew}
                   className="btn btn-primary rounded-3 fw-semibold d-inline-flex align-items-center gap-2"
                   style={botaoAzul}
                 >
@@ -366,8 +382,9 @@ function HomePage() {
                             <div style={{ minWidth: 0 }}>
                               <div className="fw-semibold">{book.title}</div>
                               <small style={{ color: TEXTO_SUAVE }}>
-                                {book.BookAuthors
-                                  .map((item) => item.Authors?.full_name)
+                                {book.BookAuthors.map(
+                                  (item) => item.Authors?.full_name,
+                                )
                                   .filter(Boolean)
                                   .join(", ") || "Autor não informado"}
                               </small>

@@ -1,8 +1,10 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import AuthLayout from "../Layouts/AuthLayout";
-import AppLayout from "../Layouts/AppLayout";
+import AuthLayout from "../layouts/AuthLayout";
+import AppLayout from "../layouts/AppLayout";
 
+import HomePage from "../pages/HomePage/HomePage";
+import SearchPage from "../pages/SearchPage/SearchPage";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import BookCreatePage from "../pages/BookCreatePage/BookCreatePage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -17,10 +19,8 @@ function AppRoutes() {
       </Route>
 
       <Route element={<AppLayout />}>
-        <Route
-          path={PATHS.home}
-          element={<Navigate to={PATHS.books} replace />}
-        />
+        <Route path={PATHS.home} element={<HomePage />} />
+        <Route path={PATHS.books} element={<SearchPage />} />
         <Route path={PATHS.booksNew} element={<BookCreatePage />} />
       </Route>
 
