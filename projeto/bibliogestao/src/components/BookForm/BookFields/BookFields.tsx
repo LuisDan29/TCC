@@ -85,25 +85,26 @@ function BookFields({
   return (
     <>
       {/* BOOKS FIELD */}
-      <fieldset className="border border-dark p-3 rounded mb-3">
-        <legend className="float-none w-auto px-2">Informações da Obra</legend>
+      <fieldset className="border rounded-4 p-4 mb-4">
+        <legend className="float-none w-auto px-2 fw-bold fs-5">Informações da Obra</legend>
         {/* ISBN -- Required Text MaxLength=13 */}
         <div className="mb-3">
-          <label htmlFor="inputISBN" className="form-label">
+          <label htmlFor="inputISBN" className="form-label fw-semibold">
             ISBN
           </label>
-          <div className="d-flex gap-3">
+          <div className="d-flex flex-wrap gap-3">
             <input
               required
               type="text"
-              className="form-control"
+              className="form-control form-control-lg"
+              style={{ flex: "1 1 12rem" }}
               id="inputISBN"
               value={isbn}
               disabled={isSearching}
               onChange={(event) => setISBN(event.target.value)}
             />
             <input
-              className="btn btn-primary"
+              className="btn btn-primary btn-lg"
               type="button"
               disabled={isSearching}
               value={isSearching ? "Buscando..." : "Buscar livro"}
@@ -111,7 +112,7 @@ function BookFields({
             />
             <button
               type="button"
-              className="btn btn-outline-primary"
+              className="btn btn-outline-primary btn-lg"
               onClick={() => setShowScanner(true)}
             >
               Escanear
@@ -130,13 +131,13 @@ function BookFields({
         {validateISBN(isbn) && <div className="text-end">{searchMessage}</div>}
         {/* Title -- Required */}
         <div className="mb-3">
-          <label htmlFor="inputTitle" className="form-label">
+          <label htmlFor="inputTitle" className="form-label fw-semibold">
             Título
           </label>
           <input
             required
             type="text"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputTitle"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
@@ -144,12 +145,12 @@ function BookFields({
         </div>
         {/* Subtitle input */}
         <div className="mb-3">
-          <label htmlFor="inputSubtitle" className="form-label">
+          <label htmlFor="inputSubtitle" className="form-label fw-semibold">
             Subtítulo
           </label>
           <input
             type="text"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputSubtitle"
             value={subtitle}
             onChange={(event) => setSubtitle(event.target.value)}
@@ -157,12 +158,12 @@ function BookFields({
         </div>
         {/* Edition -- Number */}
         <div className="mb-3">
-          <label htmlFor="inputEdition" className="form-label">
+          <label htmlFor="inputEdition" className="form-label fw-semibold">
             Edição
           </label>
           <input
             type="number"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputEdition"
             min="1"
             value={edition || ""}
@@ -171,12 +172,12 @@ function BookFields({
         </div>
         {/* Language input */}
         <div className="mb-3">
-          <label htmlFor="inputLanguage" className="form-label">
+          <label htmlFor="inputLanguage" className="form-label fw-semibold">
             Idioma
           </label>
           <input
             type="text"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputLanguage"
             value={language}
             onChange={(event) => setLanguage(event.target.value)}
@@ -184,7 +185,7 @@ function BookFields({
         </div>
         {/* Publication Year -- Number Min=1000 Max=9999 */}
         <div className="mb-3">
-          <label htmlFor="inputPublicationYear" className="form-label">
+          <label htmlFor="inputPublicationYear" className="form-label fw-semibold">
             Ano de Publicação
           </label>
           <input
@@ -192,7 +193,7 @@ function BookFields({
             type="number"
             min={1000}
             max={new Date().getFullYear() + 1}
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputPublicationYear"
             placeholder="Ex.: 2008"
             value={publicationYear || ""}
@@ -201,20 +202,21 @@ function BookFields({
         </div>
         {/* Genres Input */}
         <div className="mb-3">
-          <label htmlFor="inputGenres" className="form-label">
+          <label htmlFor="inputGenres" className="form-label fw-semibold">
             Gêneros
           </label>
-          <div className="d-flex gap-3">
+          <div className="d-flex flex-wrap gap-3">
             <input
               type="text"
-              className="form-control"
+              className="form-control form-control-lg"
+              style={{ flex: "1 1 12rem" }}
               id="inputGenres"
               value={inputGenres}
               onKeyDown={handleKeyDown}
               onChange={(event) => setInputGenres(event.target.value)}
             />
             <input
-              className="btn btn-primary"
+              className="btn btn-primary btn-lg"
               type="button"
               value="Adicionar"
               onClick={addGenre}
@@ -222,9 +224,9 @@ function BookFields({
           </div>
         </div>
         {/* Genres List */}
-        <div className="mb-3 d-flex gap-2">
+        <div className="mb-3 d-flex flex-wrap gap-2">
           {genres.map((genre) => (
-            <span key={genre} className="badge text-bg-primary fs-6">
+            <span key={genre} className="badge text-bg-primary rounded-pill fs-6 px-3 py-2">
               {genre}
               <button
                 type="button"

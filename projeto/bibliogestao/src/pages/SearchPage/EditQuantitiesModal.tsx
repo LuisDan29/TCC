@@ -131,7 +131,12 @@ function EditQuantitiesModal({ bookId, onClose, onSaved }: EditQuantitiesModalPr
                             key={condition.number}
                             className="d-flex align-items-center border-bottom py-2"
                         >
-                            <span className="badge bg-primary fs-6">{condition.number}</span>
+                            <span
+                                className="badge rounded-pill fs-6 px-3"
+                                style={{ backgroundColor: condition.color, minWidth: "2.5rem" }}
+                            >
+                                {condition.number}
+                            </span>
 
                             <div className="flex-grow-1 px-3" style={{ minWidth: 0 }}>
                                 <strong>{condition.name}</strong>

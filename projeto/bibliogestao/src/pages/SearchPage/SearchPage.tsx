@@ -278,8 +278,13 @@ function SearchPage() {
     }, []);
 
     return (
-        <main className="container py-4">
-            <h1>Pesquisar livros</h1>
+        <main className="container py-4 py-lg-5">
+            <div className="text-white mb-4">
+                <h1 className="fw-bold">Pesquisar livros</h1>
+                <p className="mb-0" style={{ color: "#A0AEC0" }}>
+                    Consulte, edite e gerencie o acervo da biblioteca
+                </p>
+            </div>
 
             {feedback && (
                 <div
@@ -296,10 +301,14 @@ function SearchPage() {
                 </div>
             )}
 
+            <div
+                className="bg-light p-3 p-sm-4 p-lg-5 shadow-lg"
+                style={{ borderRadius: "30px" }}
+            >
             <div className="mb-4">
                 <input
                     type="search"
-                    className="form-control"
+                    className="form-control form-control-lg"
                     placeholder="Pesquisar por título ou ISBN..."
                     value={searchText}
                     onChange={(event) => {
@@ -361,7 +370,7 @@ function SearchPage() {
 
                 {showAdvancedFilters && (
                     <div className="mt-3">                        
-                        <div className="card card-body">
+                        <div className="card card-body rounded-4 border-0 shadow-sm">
                             <div className="row g-3">
                                 {/* Autor */}
                                 <div className="col-12 col-md-6">
@@ -384,7 +393,7 @@ function SearchPage() {
 
                                     {showAuthorOptions && (
                                         <div
-                                            className="border rounded p-2"
+                                            className="border rounded-4 bg-white p-2"
                                             style={{ maxHeight: "180px", overflowY: "auto" }}
                                         >
                                             {filteredAuthors.map((author) => (
@@ -445,7 +454,7 @@ function SearchPage() {
 
                                     {showGenreOptions && (
                                         <div
-                                            className="border rounded p-2"
+                                            className="border rounded-4 bg-white p-2"
                                             style={{ maxHeight: "180px", overflowY: "auto" }}
                                         >
                                             {filteredGenres.map((genre) => (
@@ -506,7 +515,7 @@ function SearchPage() {
 
                                     {showPublisherOptions && (
                                         <div
-                                            className="border rounded p-2"
+                                            className="border rounded-4 bg-white p-2"
                                             style={{ maxHeight: "180px", overflowY: "auto" }}
                                         >
                                             <button
@@ -787,7 +796,7 @@ function SearchPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 
                 <div>
-                    <h2 className="h4 mb-1">
+                    <h2 className="h4 fw-bold mb-1">
                         {searchText.trim()
                         ? "Resultados da pesquisa"
                         :   filtersActive
@@ -855,9 +864,9 @@ function SearchPage() {
                 {books.map((book) => (
                     <div 
                         key={book.id} 
-                        className="card shadow-sm"
+                        className="card shadow-sm border-0 rounded-4"
                     >
-                        <div className="card-body">
+                        <div className="card-body p-3 p-lg-4">
                             <div className="row g-3 align-items-center">
                                 {/* informações resumidas */}
                                 <div className="col-12 col-md" style={{ minWidth: 0 }}>
@@ -997,6 +1006,8 @@ function SearchPage() {
                     </p>
                 </div>
             )}
+
+            </div>
 
             {detailsBookId !== null && (
                 <BookDetailsModal

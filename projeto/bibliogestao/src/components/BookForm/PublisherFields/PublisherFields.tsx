@@ -13,17 +13,17 @@ function PublisherFields({
 }: PublisherFieldsProps) {
   return (
     <>
-      <fieldset className="border border-dark p-3 rounded mb-3">
-        <legend className="float-none w-auto px-2">Editora</legend>
+      <fieldset className="border rounded-4 p-4 mb-4">
+        <legend className="float-none w-auto px-2 fw-bold fs-5">Editora</legend>
         {/* Publisher Name -- Required */}
         <div className="mb-3">
-          <label htmlFor="inputPublisherName" className="form-label">
+          <label htmlFor="inputPublisherName" className="form-label fw-semibold">
             Nome da Editora
           </label>
           <input
             required
             type="text"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputPublisherName"
             value={publisherName}
             onChange={(event) => setPublisherName(event.target.value)}
@@ -31,12 +31,12 @@ function PublisherFields({
         </div>
         {/* Publisher Country -- Required */}
         <div className="mb-3">
-          <label htmlFor="inputPublisherCountry" className="form-label">
+          <label htmlFor="inputPublisherCountry" className="form-label fw-semibold">
             País de Origem
           </label>
           <input
             type="text"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputPublisherCountry"
             value={publisherCountry}
             onChange={(event) => setPublisherCountry(event.target.value)}

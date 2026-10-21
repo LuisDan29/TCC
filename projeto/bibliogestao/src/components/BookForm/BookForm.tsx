@@ -197,10 +197,19 @@ function BookForm() {
 
   return (
     <>
-      <section id="BookForm" className="container">
-        <h1>Cadastro de Livros</h1>
-        <br></br>
-        <form onSubmit={sendForm}>
+      <section id="BookForm" className="container py-4 py-lg-5">
+        <div className="text-white mb-4">
+          <h1 className="fw-bold">Cadastro de Livros</h1>
+          <p className="mb-0" style={{ color: "#A0AEC0" }}>
+            Preencha os dados da obra, autoria, editora e acervo
+          </p>
+        </div>
+
+        <form
+          onSubmit={sendForm}
+          className="bg-light p-3 p-sm-4 p-lg-5 shadow-lg"
+          style={{ borderRadius: "30px" }}
+        >
           {/* BOOKS FIELD */}
           <BookFields
             isbn={isbn}
@@ -245,7 +254,7 @@ function BookForm() {
 
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn btn-primary btn-lg w-100"
             disabled={isSubmitting || isSearching}
           >
             {isSubmitting ? "Cadastrando..." : "Cadastrar Livro"}
@@ -264,7 +273,6 @@ function BookForm() {
             </div>
           )}
         </form>
-        <br></br>
       </section>
     </>
   );

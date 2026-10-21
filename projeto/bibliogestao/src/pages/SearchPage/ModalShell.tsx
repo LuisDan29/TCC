@@ -54,7 +54,7 @@ function ModalShell({
                 >
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2 className="modal-title h5">{title}</h2>
+                            <h2 className="modal-title h5 fw-bold">{title}</h2>
                             <button
                                 type="button"
                                 className="btn-close"

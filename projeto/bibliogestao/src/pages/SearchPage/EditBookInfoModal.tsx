@@ -281,7 +281,7 @@ function EditBookInfoModal({ bookId, onClose, onSaved }: EditBookInfoModalProps)
                         <legend className="form-label fs-6">Autores</legend>
 
                         {authors.map((author, index) => (
-                            <div key={index} className="input-group mb-2">
+                            <div key={index} className="d-flex gap-2 mb-2">
                                 <input
                                     className="form-control"
                                     placeholder="Nome do autor"

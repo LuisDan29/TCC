@@ -31,18 +31,18 @@ function CollectionFields({
 
   return (
     <>
-      <fieldset className="border border-dark p-3 rounded mb-3">
-        <legend className="float-none w-auto px-2">Acervo</legend>
+      <fieldset className="border rounded-4 p-4 mb-4">
+        <legend className="float-none w-auto px-2 fw-bold fs-5">Acervo</legend>
 
         <div className="mb-5">
-          <label htmlFor="inputNumberBooksInserted" className="form-label">
+          <label htmlFor="inputNumberBooksInserted" className="form-label fw-semibold">
             Quantidade total de livros a ser inseridos
           </label>
 
           <input
             required
             type="number"
-            className="form-control"
+            className="form-control form-control-lg"
             id="inputNumberBooksInserted"
             min="1"
             placeholder="1"
@@ -64,7 +64,12 @@ function CollectionFields({
             key={condition.number}
             className="d-flex align-items-center border-bottom py-3"
           >
-            <span className="badge bg-primary fs-6">{condition.number}</span>
+            <span
+              className="badge rounded-pill fs-6 px-3"
+              style={{ backgroundColor: condition.color, minWidth: "2.5rem" }}
+            >
+              {condition.number}
+            </span>
 
             <div className="flex-grow-1 px-3" style={{ minWidth: 0 }}>
               <strong>{condition.name}</strong>
@@ -72,10 +77,10 @@ function CollectionFields({
               <div className="text-muted small">{condition.description}</div>
             </div>
 
-            <div>
+            <div style={{ width: "90px", flexShrink: 0 }}>
               <input
                 type="number"
-                className="form-control"
+                className="form-control form-control-lg"
                 min="0"
                 placeholder="0"
                 value={bookConditions[condition.number] || ""}
