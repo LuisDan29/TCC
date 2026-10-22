@@ -9,12 +9,15 @@ import SearchPage from "../pages/SearchPage/SearchPage";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import BookCreatePage from "../pages/BookCreatePage/BookCreatePage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
+import SetPasswordPage from "../pages/SetPasswordPage/SetPasswordPage";
 
 import { PATHS } from "./paths";
 
 function AppRoutes() {
   return (
     <Routes>
+      <Route path={PATHS.setPassword} element={<SetPasswordPage />} />
+
       <Route element={<AuthLayout />}>
         <Route path={PATHS.login} element={<LoginPage />} />
       </Route>
