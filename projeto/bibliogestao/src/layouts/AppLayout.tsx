@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { PATHS } from "../routes/paths";
-import logonova from "../assets/logonova.png";
+import newLogo from "../assets/newLogo.png";
 import { useAuth } from "../contexts/AuthContext";
 
 function AppLayout() {
@@ -156,7 +156,7 @@ function AppLayout() {
         <div className="container">
           <span className="navbar-brand fw-bold d-flex align-items-center gap-2">
             <img
-              src={logonova}
+              src={newLogo}
               alt="Logo BiblioGestão"
               style={{ width: "34px", borderRadius: "9px" }}
             />

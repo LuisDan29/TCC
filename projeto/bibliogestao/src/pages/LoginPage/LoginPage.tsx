@@ -1,13 +1,16 @@
-import { useState, type FormEvent } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import logonova from "../../assets/logonova.png";
 import { supabase } from "../../lib/supabase-client";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useState, type FormEvent } from "react";
+import newLogo from "../../assets/newLogo.png";
+import eyeOpen from "../../assets/eyeOpen.png";
+import eyeClosed from "../../assets/eyeClosed.png";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,7 +85,7 @@ function LoginPage() {
       <div className="d-flex flex-column flex-lg-row align-items-center justify-content-center justify-content-lg-around px-lg-5 w-100">
         <div className="text-center text-white mb-4 mb-lg-0">
           <img
-            src={logonova}
+            src={newLogo}
             alt="Logo BiblioGestão"
             className="login-logo"
             style={{
@@ -129,17 +132,34 @@ function LoginPage() {
               <label className="form-label fw-semibold" htmlFor="password">
                 Senha
               </label>
-              <input
-                id="password"
-                type="password"
-                className="form-control form-control-lg rounded-4 meu-placeholder font-input"
-                placeholder="Digite sua senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-                disabled={loading}
-              />
+              <div className="position-relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className="form-control form-control-lg rounded-4 meu-placeholder font-input pe-5"
+                  placeholder="Digite sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                  disabled={loading}
+                />
+
+                <button
+                  type="button"
+                  className="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-1 text-secondary text-decoration-none"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  onClick={() => setShowPassword((current) => !current)}
+                  disabled={loading}
+                >
+                  <img
+                    src={showPassword ? eyeClosed : eyeOpen}
+                    alt=""
+                    width="20"
+                    height="20"
+                  />
+                </button>
+              </div>
             </div>
 
             {errorMessage && (

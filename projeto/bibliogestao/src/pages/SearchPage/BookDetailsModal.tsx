@@ -2,17 +2,11 @@ import { useEffect, useState } from "react";
 import ModalShell from "./ModalShell";
 import { getBookDetails, type BookDetails } from "../../services/bookService";
 import { BOOK_CONDITIONS, conditionsToArray } from "../../constants/bookConditions";
+import { formatDateTime } from "../../utils/dateUtils";
 
 interface BookDetailsModalProps {
     bookId: number;
     onClose: () => void;
-}
-
-function formatDate(value: string) {
-    return new Date(value).toLocaleString("pt-BR", {
-        dateStyle: "short",
-        timeStyle: "short",
-    });
 }
 
 function BookDetailsModal({ bookId, onClose }: BookDetailsModalProps) {
@@ -102,7 +96,7 @@ function BookDetailsModal({ bookId, onClose }: BookDetailsModalProps) {
                         <dd className="col-sm-8">{genres || "Não informado"}</dd>
 
                         <dt className="col-sm-4">Cadastrado em</dt>
-                        <dd className="col-sm-8">{formatDate(book.created_at)}</dd>
+                        <dd className="col-sm-8">{formatDateTime(book.created_at)}</dd>
 
                         <dt className="col-sm-4">Quantidade total</dt>
                         <dd className="col-sm-8">{book.stock_quantity}</dd>

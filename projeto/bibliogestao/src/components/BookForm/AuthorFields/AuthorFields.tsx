@@ -55,7 +55,7 @@ function AuthorFields({ authors, setAuthors }: AuthorFieldsProps) {
                   aria-label={`Remover autor ${index + 1}`}
                   onClick={() => removeAuthor(index)}
                 >
-                  X
+                  Remover
                 </button>
               )}
             </div>
