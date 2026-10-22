@@ -4,4 +4,5 @@ export const PATHS = {
   setPassword: "/definir-senha",
   books: "/livros",
   booksNew: "/livros/novo",
+  dashboard: "/relatorios",
 } as const;

@@ -9,7 +9,10 @@ function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="app-shell min-vh-100" style={{ backgroundColor: "#0f1c35" }}>
+    <div
+      className="app-shell min-vh-100"
+      style={{ backgroundColor: "#0f1c35" }}
+    >
       {/* Tema do sistema: mesma identidade da tela de login.
           Tudo o que está dentro de .app-shell herda estas regras. */}
       <style>
@@ -197,6 +200,13 @@ function AppLayout() {
                 onClick={() => setMenuOpen(false)}
               >
                 Cadastrar
+              </NavLink>
+              <NavLink
+                to={PATHS.dashboard}
+                className="nav-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                Relatórios
               </NavLink>
             </div>
 

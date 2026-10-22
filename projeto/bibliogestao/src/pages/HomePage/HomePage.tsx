@@ -21,7 +21,14 @@ const RAIO_CARD = "30px";
 // Gradiente do card "Cadastrar livro" (mantido)
 const GRADIENTE_CADASTRO = "linear-gradient(160deg, #1b3a8f, #0f1f4d)";
 
-const CORES_CAPA = ["#2f62e0", "#0f1f4d", "#7c3aed", "#0d9488", "#b45309", "#be123c"];
+const CORES_CAPA = [
+  "#2f62e0",
+  "#0f1f4d",
+  "#7c3aed",
+  "#0d9488",
+  "#b45309",
+  "#be123c",
+];
 
 const LIVROS_NA_HOME = 5;
 
@@ -209,12 +216,18 @@ function HomePage() {
                   >
                     <span
                       className="flex-grow-1"
-                      style={{ height: 1, background: "rgba(255, 255, 255, .25)" }}
+                      style={{
+                        height: 1,
+                        background: "rgba(255, 255, 255, .25)",
+                      }}
                     />
                     ou
                     <span
                       className="flex-grow-1"
-                      style={{ height: 1, background: "rgba(255, 255, 255, .25)" }}
+                      style={{
+                        height: 1,
+                        background: "rgba(255, 255, 255, .25)",
+                      }}
                     />
                   </div>
                 </>
@@ -249,9 +262,8 @@ function HomePage() {
           </div>
 
           <div className="col-12 col-md-6 col-lg-3">
-            {/* TODO: ligar quando a página de relatórios existir */}
-            <button
-              type="button"
+            <Link
+              to={PATHS.dashboard}
               className={cardAtalhoClasses}
               style={{ borderRadius: RAIO_CARD, color: BOTAO }}
             >
@@ -265,7 +277,7 @@ function HomePage() {
               <span className="d-lg-none">
                 <ChevronRightIcon />
               </span>
-            </button>
+            </Link>
           </div>
         </section>
 
@@ -315,8 +327,12 @@ function HomePage() {
                 <thead>
                   <tr className="small">
                     <th className="fw-medium text-secondary">Livro</th>
-                    <th className="fw-medium text-secondary d-none d-md-table-cell">ISBN</th>
-                    <th className="fw-medium text-secondary d-none d-sm-table-cell">Ano</th>
+                    <th className="fw-medium text-secondary d-none d-md-table-cell">
+                      ISBN
+                    </th>
+                    <th className="fw-medium text-secondary d-none d-sm-table-cell">
+                      Ano
+                    </th>
                     <th className="fw-medium text-secondary text-end">Qtd.</th>
                   </tr>
                 </thead>
@@ -342,8 +358,9 @@ function HomePage() {
                           <div style={{ minWidth: 0 }}>
                             <div className="fw-semibold">{book.title}</div>
                             <small className="text-secondary">
-                              {book.BookAuthors
-                                .map((item) => item.Authors?.full_name)
+                              {book.BookAuthors.map(
+                                (item) => item.Authors?.full_name,
+                              )
                                 .filter(Boolean)
                                 .join(", ") || "Autor não informado"}
                             </small>
