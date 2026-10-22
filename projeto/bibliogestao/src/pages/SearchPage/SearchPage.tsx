@@ -17,6 +17,7 @@ import BookDetailsModal from "./BookDetailsModal";
 import EditBookInfoModal from "./EditBookInfoModal";
 import EditQuantitiesModal from "./EditQuantitiesModal";
 import DeleteBookModal from "./DeleteBookModal";
+import { formatDateTime } from "../../utils/dateUtils";
 
 type Book = BookListItem;
 
@@ -866,7 +867,7 @@ function SearchPage() {
                         key={book.id} 
                         className="card shadow-sm border-0 rounded-4"
                     >
-                        <div className="card-body p-3 p-lg-4">
+                        <div className="card-body p-3 p-lg-4">                            
                             <div className="row g-3 align-items-center">
                                 {/* informações resumidas */}
                                 <div className="col-12 col-md" style={{ minWidth: 0 }}>
@@ -902,7 +903,14 @@ function SearchPage() {
                                         <strong>Quantidade total:</strong>{" "}
                                         {book.stock_quantity}
                                     </p>
+                                    <div className="text-muted small pt-4">
+                                        Cadastrado em{" "}
+                                        <time dateTime={book.created_at}>
+                                            {formatDateTime(book.created_at)}
+                                        </time>
+                                    </div>
                                 </div>
+                                
 
                                 {/* ações: à direita no computador, abaixo no celular */}
                                 <div className="col-12 col-md-auto">
