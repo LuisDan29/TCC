@@ -3,13 +3,19 @@ import * as echarts from "echarts/core";
 import {
   BarChart,
   LineChart,
+  PieChart,
   type BarSeriesOption,
   type LineSeriesOption,
+  type PieSeriesOption,
 } from "echarts/charts";
 import {
   GridComponent,
+  LegendComponent,
+  TitleComponent,
   TooltipComponent,
   type GridComponentOption,
+  type LegendComponentOption,
+  type TitleComponentOption,
   type TooltipComponentOption,
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
@@ -18,7 +24,10 @@ import { CanvasRenderer } from "echarts/renderers";
 echarts.use([
   BarChart,
   LineChart,
+  PieChart,
   GridComponent,
+  LegendComponent,
+  TitleComponent,
   TooltipComponent,
   CanvasRenderer,
 ]);
@@ -28,7 +37,10 @@ echarts.use([
 export type ECOption = echarts.ComposeOption<
   | BarSeriesOption
   | LineSeriesOption
+  | PieSeriesOption
   | GridComponentOption
+  | LegendComponentOption
+  | TitleComponentOption
   | TooltipComponentOption
 >;
 
@@ -50,11 +62,23 @@ function EChart({ option, height = 320, ariaLabel }: EChartProps) {
     const chart = echarts.init(container);
     chartRef.current = chart;
 
-    const observer = new ResizeObserver(() => chart.resize());
+    const resize = () => chart.resize();
+
+    const observer = new ResizeObserver(resize);
     observer.observe(container);
+
+    // Ao imprimir o relatório a largura da página muda: redesenha o gráfico
+    // para ele caber na folha (e volta ao normal depois).
+    const printQuery = window.matchMedia("print");
+    printQuery.addEventListener("change", resize);
+    window.addEventListener("beforeprint", resize);
+    window.addEventListener("afterprint", resize);
 
     return () => {
       observer.disconnect();
+      printQuery.removeEventListener("change", resize);
+      window.removeEventListener("beforeprint", resize);
+      window.removeEventListener("afterprint", resize);
       chart.dispose();
       chartRef.current = null;
     };

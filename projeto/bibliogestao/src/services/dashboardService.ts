@@ -55,3 +55,22 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   return data as unknown as DashboardStats;
 }
+
+export interface AttentionBook {
+  id: number;
+  title: string;
+  isbn: string | null;
+  authors: string; // nomes separados por vírgula
+  stock_quantity: number;
+  unusable: number; // exemplares Irrecuperáveis
+  poor: number; // exemplares Precários
+  worn: number; // exemplares Desgastados
+}
+
+export async function getAttentionBooks(): Promise<AttentionBook[]> {
+  const { data, error } = await supabase.rpc("get_attention_books");
+
+  if (error) throw error;
+
+  return (data ?? []) as unknown as AttentionBook[];
+}
