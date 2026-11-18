@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/viaf-api/:path*", "destination": "https://www.viaf.org/viaf/:path*" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}

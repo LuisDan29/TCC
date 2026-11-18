@@ -886,7 +886,7 @@ function SearchPage() {
                                         {book.BookAuthors
                                             .map((item) => item.Authors?.full_name)
                                             .filter(Boolean)
-                                            .join(", ") || "Não informado"}
+                                            .join("; ") || "Não informado"}
                                     </p>
 
                                     <p className="mb-2">

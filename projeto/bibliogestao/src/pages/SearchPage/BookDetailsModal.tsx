@@ -41,7 +41,7 @@ function BookDetailsModal({ bookId, onClose }: BookDetailsModalProps) {
     const authors = book?.BookAuthors
         .map((item) => item.Authors?.full_name)
         .filter(Boolean)
-        .join(", ");
+        .join("; ");
 
     const genres = book?.BookGenres
         .map((item) => item.Genres?.name)

@@ -362,7 +362,7 @@ function HomePage() {
                                 (item) => item.Authors?.full_name,
                               )
                                 .filter(Boolean)
-                                .join(", ") || "Autor não informado"}
+                                .join("; ") || "Autor não informado"}
                             </small>
                           </div>
                         </div>

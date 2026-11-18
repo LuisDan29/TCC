@@ -5,15 +5,20 @@ import AuthorFields from "./AuthorFields/AuthorFields";
 import PublisherFields from "./PublisherFields/PublisherFields";
 import CollectionFields from "./CollectionFields/CollectionFields";
 
-import { createBook } from "../../services/bookService";
+import { createBook, getBookFilterOptions } from "../../services/bookService";
 import { getBookByISBN } from "../../services/isbnApiService";
+import { standardizeAuthors } from "../../services/authorityService";
 
 import {
   normalizeISBN,
   validateISBN,
   validateStockQuantity,
 } from "../../utils/bookValidation";
-import { cleanList } from "../../utils/textUtils";
+import {
+  cleanList,
+  isCatalogFormat,
+  normalizeName,
+} from "../../utils/textUtils";
 import { getErrorMessage } from "../../utils/errorMessages";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -41,6 +46,8 @@ function BookForm() {
 
   // Authors
   const [authors, setAuthors] = useState<string[]>([""]);
+  // Autores fora do padrão "SOBRENOME, Nome" que o bibliotecário aprovou
+  const [acceptedAuthors, setAcceptedAuthors] = useState<string[]>([]);
 
   // Publisher
   const [publisherName, setPublisherName] = useState("");
@@ -74,11 +81,40 @@ function BookForm() {
 
       if (bookInfo.subtitle) setSubtitle(bookInfo.subtitle);
       if (bookInfo.publisher) setPublisherName(bookInfo.publisher);
-      if (bookInfo.authors.length > 0) setAuthors(bookInfo.authors);
-      if (bookInfo.subjects.length > 0) setGenres(bookInfo.subjects);
+      if (bookInfo.subjects.length > 0) setGenres(cleanList(bookInfo.subjects));
       if (bookInfo.year !== null) setPublicationYear(bookInfo.year);
 
-      setSearchMessage("✅ Livro encontrado com sucesso!");
+      let needsReview = false;
+
+      if (bookInfo.authors.length > 0) {
+        // Autores já cadastrados no padrão ajudam a manter a consistência
+        let knownAuthors: string[] = [];
+
+        try {
+          const options = await getBookFilterOptions();
+          knownAuthors = options.authors.map((author) => author.full_name);
+        } catch (error) {
+          console.warn("Não foi possível carregar os autores cadastrados:", error);
+        }
+
+        // Padroniza para "SOBRENOME, Nome" antes de preencher o formulário.
+        // O que não puder ser confirmado volta como veio, para conferência.
+        const standardized = await standardizeAuthors(bookInfo.authors, {
+          bookTitle: bookInfo.title,
+          publicationYear: bookInfo.year,
+          knownAuthors,
+        });
+
+        setAuthors(standardized.map((author) => author.name));
+        setAcceptedAuthors([]);
+        needsReview = standardized.some((author) => !author.confirmed);
+      }
+
+      setSearchMessage(
+        needsReview
+          ? "✅ Livro encontrado! ⚠️ Confira o nome dos autores antes de cadastrar."
+          : "✅ Livro encontrado com sucesso!",
+      );
     } catch (error) {
       console.error("Erro ao consultar o ISBN:", error);
 
@@ -107,6 +143,7 @@ function BookForm() {
     setGenres([]);
     setInputGenres("");
     setAuthors([""]);
+    setAcceptedAuthors([]);
     setPublisherName("");
     setPublisherCountry("");
     setNumberBooksInserted(1);
@@ -121,7 +158,7 @@ function BookForm() {
 
     const cleanTitle = title.trim();
     const cleanPublisherName = publisherName.trim();
-    const cleanAuthors = cleanList(authors);
+    const cleanAuthors = cleanList(authors.map(normalizeName));
 
     if (!validateISBN(isbn)) {
       showError("Informe um ISBN válido.");
@@ -135,6 +172,18 @@ function BookForm() {
 
     if (cleanAuthors.length === 0) {
       showError("Informe pelo menos um autor.");
+      return;
+    }
+
+    // Autor fora do padrão só é gravado se o bibliotecário confirmar
+    const pendingAuthors = cleanAuthors.filter(
+      (author) => !isCatalogFormat(author) && !acceptedAuthors.includes(author),
+    );
+
+    if (pendingAuthors.length > 0) {
+      showError(
+        `Confira o nome do(s) autor(es) no padrão "SOBRENOME, Nome" ou marque "Manter assim": ${pendingAuthors.join("; ")}`,
+      );
       return;
     }
 
@@ -234,7 +283,12 @@ function BookForm() {
           />
 
           {/* AUTHOR FIELD */}
-          <AuthorFields authors={authors} setAuthors={setAuthors} />
+          <AuthorFields
+            authors={authors}
+            setAuthors={setAuthors}
+            acceptedAuthors={acceptedAuthors}
+            setAcceptedAuthors={setAcceptedAuthors}
+          />
 
           {/* PUBLISHERS FIELD */}
           <PublisherFields
